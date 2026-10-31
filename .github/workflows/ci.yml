@@ -149,7 +149,14 @@ jobs:
       # This task's exit code is not a pass signal - a run that executed zero
       # tests still returned BUILD SUCCESSFUL - so this step never sets the
       # outcome. The log line is authoritative (see below).
+      # The GameTest runtime closure resolves tensura_quests /
+      # tensura_quests_api / infinite-dungeon-api from GitHub Packages, and
+      # the workflow's own token cannot read a package owned by another
+      # repository - this step needs the read secret, Gradle steps only.
       - name: Run GameTest server
+        env:
+          PACKAGE_READ_TOKEN: ${{ secrets.PACKAGE_READ_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PACKAGE_READ_TOKEN || github.token }}
         run: |
           set +e
           ./gradlew runGameTestServer --no-daemon 2>&1 | tee gametest.log
