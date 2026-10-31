@@ -36,6 +36,27 @@ versionRange = "${minecraft_version_range}"
 ordering = "NONE"
 side = "BOTH"
 
+[[dependencies.${mod_id}]]
+modId = "tensura"
+type = "required"
+versionRange = "[2.0.1.3,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "ftbquests"
+type = "required"
+versionRange = "[2101.1.36,)"
+ordering = "NONE"
+side = "BOTH"
+
+[[dependencies.${mod_id}]]
+modId = "tensura_quests"
+type = "required"
+versionRange = "[1.0.0-alpha.8,)"
+ordering = "NONE"
+side = "BOTH"
+
 # Add your mod's dependencies below. Use type = "optional" for anything the mod
 # works without, and gate the code that touches it (mixins, registrations) so it
 # no-ops when the dependency is absent.

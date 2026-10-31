@@ -89,12 +89,102 @@ tasks.withType(JavaCompile).configureEach {
 // every derived repo.
 repositories {
     mavenCentral()
+
+    // Tensura: Reincarnated and the FTB Quests stack resolve from
+    // CurseMaven by exact Curse project + file id - pinned, never floating
+    // (the *_file_id values live in gradle.properties).
+    maven {
+        name = 'CurseMaven'
+        url = uri('https://cursemaven.com')
+        content { includeGroup 'curse.maven' }
+    }
+
+    // Sympathetic Jobs (+ Attributes) resolve from Modrinth's own maven,
+    // pinned versions - they ride as transitive POM dependencies of
+    // tensura_quests and are never staged as jars for this repo's runs
+    // (optional families in that mod).
+    maven {
+        name = 'ModrinthMaven'
+        url = uri('https://api.modrinth.com/maven')
+        content { includeGroup 'maven.modrinth' }
+    }
+
+    // infinite-dungeon-api, same transitive reason as Modrinth above - the
+    // owning repository differs, so it needs its own GitHub Packages block.
+    maven {
+        name = 'GitHubPackagesDungeon'
+        url = uri('https://maven.pkg.github.com/HexaHexes/infinite-dungeon-api')
+        credentials {
+            username = System.getenv('GITHUB_ACTOR') ?: project.findProperty('gpr.user')
+            password = System.getenv('PACKAGE_READ_TOKEN') ?: System.getenv('GITHUB_TOKEN') ?: project.findProperty('gpr.key')
+        }
+    }
+
+    // tensura_quests and tensura_quests_api, from their owning repositories
+    // on GitHub Packages (a workflow token cannot read another repo's
+    // packages: CI injects PACKAGE_READ_TOKEN as GITHUB_TOKEN on the Gradle
+    // steps; locally supply gpr.user / gpr.key). GitHub answers 404 when
+    // credentials are missing for a package read.
+    maven {
+        name = 'GitHubPackagesTensuraQuests'
+        url = uri('https://maven.pkg.github.com/HexaHexes/tensura-quests')
+        credentials {
+            username = System.getenv('GITHUB_ACTOR') ?: project.findProperty('gpr.user')
+            password = System.getenv('PACKAGE_READ_TOKEN') ?: System.getenv('GITHUB_TOKEN') ?: project.findProperty('gpr.key')
+        }
+    }
+    maven {
+        name = 'GitHubPackagesTensuraQuestsApi'
+        url = uri('https://maven.pkg.github.com/HexaHexes/tensura-quests-api')
+        credentials {
+            username = System.getenv('GITHUB_ACTOR') ?: project.findProperty('gpr.user')
+            password = System.getenv('PACKAGE_READ_TOKEN') ?: System.getenv('GITHUB_TOKEN') ?: project.findProperty('gpr.key')
+        }
+    }
 }
 
+configurations {
+    // Runtime closure for the GameTest run: staged into run/mods by
+    // prepareGametestMods, exactly like the rest of the org's mod repos.
+    gametestMods
+}
+
+// The mod's required dependency closure (what neoforge.mods.toml declares):
+// Tensura: Reincarnated with its required closure, the FTB Quests stack it
+// hosts on, and the tensura_quests pair the chapters are written against.
 dependencies {
     testImplementation platform('org.junit:junit-bom:5.10.2')
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    // Tensura: Reincarnated and its required closure - file ids are
+    // CurseMaven coordinates (project id above each value in
+    // gradle.properties).
+    gametestMods "curse.maven:architectury-419699:${architectury_file_id}"
+    gametestMods "curse.maven:cloth-config-348521:${cloth_config_file_id}"
+    gametestMods "curse.maven:geckolib-388172:${geckolib_file_id}"
+    gametestMods "curse.maven:manascore-619025:${manascore_file_id}"
+    gametestMods "curse.maven:smartbrainlib-661293:${smartbrainlib_file_id}"
+    gametestMods "curse.maven:tensura-reincarnated-643695:${tensura_file_id}"
+    gametestMods "curse.maven:terrablender-940057:${terrablender_file_id}"
+
+    // The FTB Quests stack (ftbquests declares ftblibrary/ftbteams
+    // required, so they stage as jars alongside it).
+    gametestMods 'curse.maven:ftb-quests-289412:8885017' // ftb-quests-neoforge-2101.1.36
+    gametestMods 'curse.maven:ftb-library-forge-404465:9008089' // ftb-library-neoforge-2101.1.37
+    gametestMods 'curse.maven:ftb-teams-404468:8724782' // ftb-teams-neoforge-2101.1.11
+
+    // The task and reward types the chapters use, plus the api artifact
+    // tensura_quests declares required.
+    gametestMods "org.bitwisemadness.tensuraquests:tensura_quests:${tensura_quests_version}"
+    gametestMods "org.bitwisemadness.tensuraquestsapi:tensura_quests_api:${tensura_quests_api_version}"
+}
+
+// Stage the runtime closure into run/mods for the GameTest server: Sync
+// keeps the folder exact, so stale jars from older pins are removed too.
+tasks.register('prepareGametestMods', Sync) {
+    from configurations.gametestMods
+    into 'run/mods'
 }
 
 test {
@@ -107,6 +197,7 @@ test {
 // signal. Keep expectedTests in sync with the @GameTest methods.
 tasks.matching { it.name == 'runGameTestServer' }.configureEach {
     def expectedTests = 1
+    dependsOn 'prepareGametestMods'
     doLast {
         def log = file('run/logs/latest.log')
         if (!log.exists()) {
@@ -158,7 +249,7 @@ publishing {
     repositories {
         maven {
             name = 'GitHubPackages'
-            url = uri('https://maven.pkg.github.com/HexaHexes/neoforge-mod-template')
+            url = uri('https://maven.pkg.github.com/HexaHexes/tensura-questlines')
             credentials {
                 username = System.getenv('GITHUB_ACTOR') ?: project.findProperty('gpr.user')
                 password = System.getenv('GITHUB_TOKEN') ?: project.findProperty('gpr.key')
