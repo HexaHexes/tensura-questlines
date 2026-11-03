@@ -81,9 +81,13 @@ must match the `@GameTest` count.
 
 ## CI & release model - this repo
 
-- `ci.yml` runs the template's checks (junit, gametest, version-bump) plus the
-  static job (SpotBugs + Checkstyle + Spotless).
-- `release.yml` cuts the GitHub release for `v<mod_version>` on a push to
-  `main` (pre-releases only when the repo variable `ALPHA_RELEASES` is true),
-  and `publish.yml` uploads the artifact to the org's GitHub Packages registry
-  on release, under the version in `gradle.properties`.
+- `ci.yml` runs the template's checks (junit, gametest, static - SpotBugs +
+  Checkstyle + Spotless) plus the version doctrine.
+- **PRs never touch `gradle.properties`** (neoforge-mod-template#81): the
+  `-alpha.N` slot is owned by CI/CD. `version-bump-post-merge.yml` bumps it on
+  every real push to `main` (`.github/**`-only pushes are ignored) and
+  dispatches `release.yml`, which cuts `v<version>` and kicks the publishing
+  workflows. Clean and beta bumps stay owner-driven isolated PRs, which is the
+  only shape of `gradle.properties` change CI accepts beside nothing else.
+- `publish.yml` uploads the artifact to the org's GitHub Packages registry for
+  the released version.
