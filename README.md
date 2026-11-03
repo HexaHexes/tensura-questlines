@@ -26,9 +26,14 @@ open the Depths, trials gate the finale).
 
 ## Status
 
-Content lands through the major-line issues
-([tensura-quests#29](https://github.com/HexaHexes/tensura-quests/issues/29)–[#33](https://github.com/HexaHexes/tensura-quests/issues/33));
-until chapters ship, this jar registers nothing beyond its entry point.
+The chapter delivery layer is live: chapters are built programmatically at
+server start (FTB Quests 2101 has no datapack ingestion) and persisted through
+FTB's own save cycle. The first chapter ships with it -
+**Reincarnation: First Steps** - and the remaining sub-questlines land through
+their issues in the
+[tensura-questlines tracker](https://github.com/HexaHexes/tensura-questlines/issues),
+planned from the major-line issues
+[tensura-quests#29](https://github.com/HexaHexes/tensura-quests/issues/29)–[#33](https://github.com/HexaHexes/tensura-quests/issues/33).
 
 ## Dependencies
 
