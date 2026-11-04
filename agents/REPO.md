@@ -78,6 +78,13 @@ must match the `@GameTest` count.
 - Modded items in specs are resolved from `BuiltInRegistries.ITEM` at build
   time, so the owning mod must be a declared dependency; a missing item
   would silently produce an uncompletable task.
+- Existence and awakening quests are authored through the same
+  `readData` route (`existence`/`value` and `status` keys; the existence
+  threshold also has the public `setValue`). Existence counters that track
+  peaks (`MAX_AURA`, `MAX_EP`) keep the feat earned once reached. Every
+  threshold and reward value in `content/` is a first-pass number: the
+  game-testing round tunes them, and any change is an ordinary content
+  revision.
 - Editing issue or PR text on Windows? Never pipe it through PowerShell 5.1
   (the console mangles non-ASCII, arrows arrive as mojibake): write a UTF-8
   file and use `gh --body-file` / `gh --input`.

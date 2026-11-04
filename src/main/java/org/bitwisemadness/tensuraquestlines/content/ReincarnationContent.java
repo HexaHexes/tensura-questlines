@@ -1,6 +1,8 @@
 package org.bitwisemadness.tensuraquestlines.content;
 
 import io.github.manasmods.tensura_ftb.tasks.AbilityTask;
+import io.github.manasmods.tensura_ftb.tasks.AwakeningTask;
+import io.github.manasmods.tensura_ftb.tasks.ExistenceTask;
 import java.util.List;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
@@ -25,6 +27,7 @@ public final class ReincarnationContent {
     private static final int FIRST_STEPS_CHAPTER = 1;
     private static final int RACE_AND_NATURE_CHAPTER = 2;
     private static final int FIRST_SKILLS_CHAPTER = 3;
+    private static final int AWAKENINGS_CHAPTER = 4;
 
     private ReincarnationContent() {
     }
@@ -150,6 +153,49 @@ public final class ReincarnationContent {
                 "Next: what you are becoming. See Awakenings.",
                 List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 4, 0))),
                 List.of(RewardSpec.item(ChapterIds.reward(chapter, 4, 0), Items.EMERALD, 4)))
+        ));
+    }
+
+    /**
+     * Sub-questline 4, Awakenings (HexaHexes/tensura-questlines#5): the
+     * line's climax and its two handoffs.
+     *
+     * <p>The two milestone quests read the native existence task, which
+     * reports a live counter as progress and completes at the configured
+     * threshold; peak counters ({@code MAX_AURA}, {@code MAX_EP}) are used so
+     * the feat stays earned. The awakening quest reads the native awakening
+     * task with {@code ANY}: whatever the player becomes counts, so no path
+     * is forced on them. Thresholds are first-pass numbers, tuned in the
+     * game-testing round.</p>
+     *
+     * @return the Awakenings chapter spec
+     */
+    public static AuthoredChapter awakenings() {
+        int chapter = AWAKENINGS_CHAPTER;
+        return new AuthoredChapter(ChapterIds.chapter(chapter), "Awakenings", List.of(
+            new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                "The Stirring",
+                "Your aura answers before you do.",
+                List.of(TaskSpec.existence(ChapterIds.task(chapter, 0, 0),
+                    ExistenceTask.ExistenceType.MAX_AURA, 50L)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.EMERALD, 3))),
+            new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                "The Deepening",
+                "Power compounds. The peak is what counts.",
+                List.of(TaskSpec.existence(ChapterIds.task(chapter, 1, 0),
+                    ExistenceTask.ExistenceType.MAX_EP, 500L)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.GOLD_INGOT, 4))),
+            new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                "Awakening",
+                "Whatever you become, become it fully.",
+                List.of(TaskSpec.awakening(ChapterIds.task(chapter, 2, 0),
+                    AwakeningTask.AwakeningStatus.ANY)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.DIAMOND, 2))),
+            new QuestSpec(ChapterIds.quest(chapter, 3), 4.5D, 0.0D,
+                "Who I Will Be",
+                "Two roads from here: a trade, or a proving.",
+                List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 3, 0))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 3, 0), Items.DIAMOND, 3)))
         ));
     }
 }
