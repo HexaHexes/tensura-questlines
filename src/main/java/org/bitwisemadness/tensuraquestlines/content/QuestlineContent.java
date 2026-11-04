@@ -15,7 +15,8 @@ public final class QuestlineContent {
 
     private static final List<AuthoredChapter> CHAPTERS = List.of(
         ReincarnationContent.firstSteps(),
-        ReincarnationContent.raceAndNature()
+        ReincarnationContent.raceAndNature(),
+        ReincarnationContent.firstSkills()
     );
 
     private QuestlineContent() {
