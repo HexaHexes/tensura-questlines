@@ -1,6 +1,7 @@
 package org.bitwisemadness.tensuraquestlines.delivery;
 
 import dev.ftb.mods.ftbquests.quest.ServerQuestFile;
+import net.minecraft.gametest.framework.GameTestServer;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.neoforge.event.server.ServerStoppingEvent;
@@ -26,6 +27,12 @@ import org.bitwisemadness.tensuraquestlines.content.QuestlineContent;
  * FTB's own file watching while the server is still coming up. Because
  * content is code and delivery re-creates anything missing, nothing is ever
  * lost to an early crash.</p>
+ *
+ * <p>GameTest servers are skipped: the harness is not a game. Its batch loop
+ * runs unthrottled against the live quest file, and a delivery that creates
+ * objects there wedges the batch with no error (observed twice, with the
+ * no-mutation run passing) - so the suite exercises delivery through its own
+ * isolated quest file instead. Production servers deliver normally.</p>
  */
 @EventBusSubscriber(modid = TensuraQuestlines.MOD_ID)
 public final class QuestlineDelivery {
@@ -41,7 +48,7 @@ public final class QuestlineDelivery {
      */
     @SubscribeEvent
     public static void onServerTick(ServerTickEvent.Post event) {
-        if (delivered) {
+        if (delivered || event.getServer() instanceof GameTestServer) {
             return;
         }
         ServerQuestFile.getInstance().ifPresent(QuestlineDelivery::deliver);

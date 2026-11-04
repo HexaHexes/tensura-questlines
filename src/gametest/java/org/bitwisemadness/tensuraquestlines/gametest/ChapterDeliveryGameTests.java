@@ -72,6 +72,28 @@ public final class ChapterDeliveryGameTests {
         helper.succeed();
     }
 
+    /** Every registered chapter materialises on a fresh file, quests and all. */
+    @GameTest(template = "empty")
+    public static void delivery_builds_every_registered_chapter(GameTestHelper helper) {
+        TestQuestFile file = new TestQuestFile(Env.SERVER, helper.getLevel().registryAccess());
+        for (AuthoredChapter chapter : QuestlineContent.chapters()) {
+            helper.assertTrue(chapter.apply(file),
+                "chapter " + chapter.id() + " must report changes on a fresh file");
+            Chapter built = file.getChapter(chapter.id());
+            if (built == null) {
+                helper.fail("chapter " + chapter.id() + " must exist after delivery");
+                return;
+            }
+            helper.assertTrue(built.getQuests().size() == chapter.quests().size(),
+                "chapter " + chapter.id() + " must deliver every authored quest");
+            for (QuestSpec quest : chapter.quests()) {
+                helper.assertTrue(file.getQuest(quest.id()) != null,
+                    "quest " + quest.id() + " must resolve");
+            }
+        }
+        helper.succeed();
+    }
+
     /** Every id the content set allocates is unique across chapters. */
     @GameTest(template = "empty")
     public static void content_ids_are_unique_across_the_set(GameTestHelper helper) {

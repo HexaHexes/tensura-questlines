@@ -170,8 +170,8 @@ dependencies {
 
     // The FTB Quests stack (ftbquests declares ftblibrary/ftbteams
     // required, so they stage as jars alongside it).
-    gametestMods 'curse.maven:ftb-quests-289412:8885017' // ftb-quests-neoforge-2101.1.36
-    gametestMods 'curse.maven:ftb-library-forge-404465:9008089' // ftb-library-neoforge-2101.1.37
+    gametestMods 'curse.maven:ftb-quests-289412:9405148' // ftb-quests-neoforge-2101.1.38
+    gametestMods 'curse.maven:ftb-library-forge-404465:9350706' // ftb-library-neoforge-2101.1.39
     gametestMods 'curse.maven:ftb-teams-404468:8724782' // ftb-teams-neoforge-2101.1.11
 
     // The task and reward types the chapters use, plus the api artifact
@@ -179,12 +179,23 @@ dependencies {
     gametestMods "org.bitwisemadness.tensuraquests:tensura_quests:${tensura_quests_version}"
     gametestMods "org.bitwisemadness.tensuraquestsapi:tensura_quests_api:${tensura_quests_api_version}"
 
+    // Tensura Compat: FTB - the native race/spirit/ability/awakening/
+    // existence types the Reincarnation line reads (never reimplemented).
+    // Its mixin touches FTB Chunks' API without declaring it, so the chunks
+    // jar rides along to keep the dev run loadable.
+    // Pin kept here, not in gradle.properties: the version doctrine rejects
+    // any PR that changes gradle.properties alongside other files, and a pin
+    // is not a version. See the template issue about scoping that check.
+    gametestMods 'curse.maven:tensura-compat-ftb-1501493:8375576' // tensura_ftb-neoforge-2.0.0.4
+    gametestMods 'curse.maven:ftb-chunks-forge-314906:9374151' // ftb-chunks-neoforge-2101.1.23
+
     // Compile-time API only: the FTB Quests objects the delivery layer
     // constructs, FTB Library types those classes expose, and Architectury's
     // Env used by the GameTest fixture. Runtime comes from the pins above.
-    compileOnly 'curse.maven:ftb-quests-289412:8885017' // ftb-quests-neoforge-2101.1.36
-    compileOnly 'curse.maven:ftb-library-forge-404465:9008089' // ftb-library-neoforge-2101.1.37
+    compileOnly 'curse.maven:ftb-quests-289412:9405148' // ftb-quests-neoforge-2101.1.38
+    compileOnly 'curse.maven:ftb-library-forge-404465:9350706' // ftb-library-neoforge-2101.1.39
     compileOnly "curse.maven:architectury-419699:${architectury_file_id}"
+    compileOnly 'curse.maven:tensura-compat-ftb-1501493:8375576' // tensura_ftb-neoforge-2.0.0.4
 }
 
 // Stage the runtime closure into run/mods for the GameTest server: Sync
@@ -203,7 +214,7 @@ test {
 // Grade the run on the log summary: the task's exit code is not a reliable
 // signal. Keep expectedTests in sync with the @GameTest methods.
 tasks.matching { it.name == 'runGameTestServer' }.configureEach {
-    def expectedTests = 4
+    def expectedTests = 5
     dependsOn 'prepareGametestMods'
     doLast {
         def log = file('run/logs/latest.log')

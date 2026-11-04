@@ -14,7 +14,8 @@ import org.bitwisemadness.tensuraquestlines.delivery.AuthoredChapter;
 public final class QuestlineContent {
 
     private static final List<AuthoredChapter> CHAPTERS = List.of(
-        ReincarnationContent.firstSteps()
+        ReincarnationContent.firstSteps(),
+        ReincarnationContent.raceAndNature()
     );
 
     private QuestlineContent() {
