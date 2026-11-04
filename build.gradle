@@ -188,6 +188,7 @@ dependencies {
     // is not a version. See the template issue about scoping that check.
     gametestMods 'curse.maven:tensura-compat-ftb-1501493:8375576' // tensura_ftb-neoforge-2.0.0.4
     gametestMods 'curse.maven:ftb-chunks-forge-314906:9374151' // ftb-chunks-neoforge-2101.1.23
+    gametestMods 'curse.maven:tensura-skill-books-1418495:9055170' // tensura_skill_books-neoforge-2.2.3
 
     // Compile-time API only: the FTB Quests objects the delivery layer
     // constructs, FTB Library types those classes expose, and Architectury's
@@ -196,6 +197,7 @@ dependencies {
     compileOnly 'curse.maven:ftb-library-forge-404465:9350706' // ftb-library-neoforge-2101.1.39
     compileOnly "curse.maven:architectury-419699:${architectury_file_id}"
     compileOnly 'curse.maven:tensura-compat-ftb-1501493:8375576' // tensura_ftb-neoforge-2.0.0.4
+    compileOnly 'curse.maven:tensura-skill-books-1418495:9055170' // tensura_skill_books-neoforge-2.2.3
 }
 
 // Stage the runtime closure into run/mods for the GameTest server: Sync

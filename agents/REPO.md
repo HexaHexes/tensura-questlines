@@ -23,7 +23,9 @@ issues are detailed.
   set in its world), FTB Quests (`ftbquests` `[2101.1.36,)` - the host system),
   Tensura Quests (`tensura_quests` `[1.0.0-alpha.8,)` - our task and reward
   types), Tensura Compat: FTB (`tensura_ftb` `[2.0.0.4,)` - the native
-  race/spirit/ability/awakening/existence types the Reincarnation line reads).
+  race/spirit/ability/awakening/existence types the Reincarnation line reads),
+  Tensura Skill Books (`tensura_skill_books` `[2.2.3,)` - the study-book item
+  the First Skills chapter requires).
 - Optional: none declared yet. Individual sub-questlines may need optional
   content systems (Sympathetic Jobs, Infinite Dungeon suite, Lightman's
   Currency) - add those dependencies together with the line that needs them,
@@ -67,6 +69,15 @@ must match the `@GameTest` count.
   are coupled: FTB Chunks (staged for `tensura_ftb`'s mixin) requires FTB
   Library `2101.1.39` or above, so bumping one means bumping its neighbours
   and re-running `runGameTestServer`.
+- Authoring a *named* ability quest goes through `AbilityTask.readData` with
+  the task's own `ability`/`status` keys (`LEARNT`, `MASTERED`,
+  `AVAILABLE`): its fields are private and it has no setters. The skill id
+  must exist in the pack or the task can never complete, so check
+  `config/tensura_skill_books/tensura_skill_books-loot-skills.txt` (a
+  generated index of every registered skill id) before naming one.
+- Modded items in specs are resolved from `BuiltInRegistries.ITEM` at build
+  time, so the owning mod must be a declared dependency; a missing item
+  would silently produce an uncompletable task.
 - Editing issue or PR text on Windows? Never pipe it through PowerShell 5.1
   (the console mangles non-ASCII, arrows arrive as mojibake): write a UTF-8
   file and use `gh --body-file` / `gh --input`.

@@ -45,6 +45,7 @@ planned from the major-line issues
 | Required | FTB Quests | Hosts the chapters |
 | Required | Tensura Quests | The task and reward types the chapters use |
 | Required | Tensura Compat: FTB | The native race, spirit, ability, awakening and existence types the lines read |
+| Required | Tensura Skill Books | The study-book item the First Skills chapter requires |
 
 ## Credits
 

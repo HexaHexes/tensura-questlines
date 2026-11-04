@@ -1,6 +1,8 @@
 package org.bitwisemadness.tensuraquestlines.content;
 
+import io.github.manasmods.tensura_ftb.tasks.AbilityTask;
 import java.util.List;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Items;
 import org.bitwisemadness.tensuraquestlines.delivery.AuthoredChapter;
 import org.bitwisemadness.tensuraquestlines.delivery.QuestSpec;
@@ -22,6 +24,7 @@ public final class ReincarnationContent {
 
     private static final int FIRST_STEPS_CHAPTER = 1;
     private static final int RACE_AND_NATURE_CHAPTER = 2;
+    private static final int FIRST_SKILLS_CHAPTER = 3;
 
     private ReincarnationContent() {
     }
@@ -96,6 +99,57 @@ public final class ReincarnationContent {
                 "Next: what you can do with it. See First Skills.",
                 List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 3, 0))),
                 List.of(RewardSpec.item(ChapterIds.reward(chapter, 3, 0), Items.EMERALD, 4)))
+        ));
+    }
+
+    /**
+     * Sub-questline 3, First Skills (HexaHexes/tensura-questlines#4): train
+     * the skills the pack actually ships enabled.
+     *
+     * <p>Both ability quests read the native Tensura Compat: FTB ability
+     * task, authored through its own {@code ability}/{@code status} data keys
+     * because the fields are private. The cheapest tiers are targeted
+     * deliberately: a common skill (Fighter), and a resistance skill, which
+     * the pack's own {@code resistance_config.toml} teaches from accumulated
+     * damage points. The {@code tensura_skill_disabled} curation was audited
+     * before shipping - its blacklist is empty in this pack, and stextras'
+     * {@code validSkillsTOLock} lists skills a player may *choose* to lock -
+     * so neither requirement is a disabled skill.</p>
+     *
+     * @return the First Skills chapter spec
+     */
+    public static AuthoredChapter firstSkills() {
+        int chapter = FIRST_SKILLS_CHAPTER;
+        return new AuthoredChapter(ChapterIds.chapter(chapter), "First Skills", List.of(
+            new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                "A Skill to Call Your Own",
+                "The ability menu decides who you become. Open it.",
+                List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 0, 0))),
+                List.of()),
+            new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                "First Discipline",
+                "Learn Fighter - the broadest cheap start.",
+                List.of(TaskSpec.ability(ChapterIds.task(chapter, 1, 0),
+                    ResourceLocation.parse("tensura:fighter"), AbilityTask.AcquisitionStatus.LEARNT)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.EMERALD, 2))),
+            new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                "The Book of Skills",
+                "A study book holds a skill you have not met yet.",
+                List.of(TaskSpec.item(ChapterIds.task(chapter, 2, 0),
+                    ResourceLocation.parse("tensura_skill_books:skill_study_book"), 1)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.IRON_INGOT, 2))),
+            new QuestSpec(ChapterIds.quest(chapter, 3), 4.5D, 0.0D,
+                "Toughen Up",
+                "Get hit, learn, resist: physical attack resistance.",
+                List.of(TaskSpec.ability(ChapterIds.task(chapter, 3, 0),
+                    ResourceLocation.parse("tensura:physical_attack_resistance"),
+                    AbilityTask.AcquisitionStatus.LEARNT)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 3, 0), Items.GOLD_INGOT, 2))),
+            new QuestSpec(ChapterIds.quest(chapter, 4), 6.0D, 0.0D,
+                "Tools of the Trade",
+                "Next: what you are becoming. See Awakenings.",
+                List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 4, 0))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 4, 0), Items.EMERALD, 4)))
         ));
     }
 }
