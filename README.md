@@ -44,6 +44,7 @@ planned from the major-line issues
 | Required | Tensura | The pack's world every line is set in |
 | Required | FTB Quests | Hosts the chapters |
 | Required | Tensura Quests | The task and reward types the chapters use |
+| Required | Tensura Compat: FTB | The native race, spirit, ability, awakening and existence types the lines read |
 
 ## Credits
 

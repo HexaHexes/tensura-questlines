@@ -21,6 +21,7 @@ import org.bitwisemadness.tensuraquestlines.delivery.TaskSpec;
 public final class ReincarnationContent {
 
     private static final int FIRST_STEPS_CHAPTER = 1;
+    private static final int RACE_AND_NATURE_CHAPTER = 2;
 
     private ReincarnationContent() {
     }
@@ -56,6 +57,45 @@ public final class ReincarnationContent {
                 "Next: settle what you are. See Race & Nature.",
                 List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 4, 0))),
                 List.of(RewardSpec.item(ChapterIds.reward(chapter, 4, 0), Items.IRON_INGOT, 4)))
+        ));
+    }
+
+    /**
+     * Sub-questline 2, Race &amp; Nature
+     * (HexaHexes/tensura-questlines#3): discover and settle your race, and
+     * hear the first stirring of your spirit.
+     *
+     * <p>The two milestone quests read the native Tensura Compat: FTB check
+     * tasks as registered - a race check and a spirit check, both
+     * fieldless - so the chapter never hardcodes a race id and stays valid
+     * for every race the pack ships. Its finale points at First Skills, the
+     * next chapter of this line.</p>
+     *
+     * @return the Race &amp; Nature chapter spec
+     */
+    public static AuthoredChapter raceAndNature() {
+        int chapter = RACE_AND_NATURE_CHAPTER;
+        return new AuthoredChapter(ChapterIds.chapter(chapter), "Race & Nature", List.of(
+            new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                "What Am I?",
+                "Something in you is not human any more. Find out what.",
+                List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 0, 0))),
+                List.of()),
+            new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                "Settled",
+                "Choose a race, and make it yours.",
+                List.of(TaskSpec.race(ChapterIds.task(chapter, 1, 0))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.EMERALD, 2))),
+            new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                "First Stirring",
+                "Your spirit answers for the first time.",
+                List.of(TaskSpec.spirit(ChapterIds.task(chapter, 2, 0))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.GOLD_INGOT, 2))),
+            new QuestSpec(ChapterIds.quest(chapter, 3), 4.5D, 0.0D,
+                "Nature's Shape",
+                "Next: what you can do with it. See First Skills.",
+                List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 3, 0))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 3, 0), Items.EMERALD, 4)))
         ));
     }
 }

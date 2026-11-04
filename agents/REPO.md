@@ -21,15 +21,16 @@ issues are detailed.
 **Dependencies**
 - Required: Minecraft, NeoForge, Tensura (`tensura` `[2.0.1.3,)` - every line is
   set in its world), FTB Quests (`ftbquests` `[2101.1.36,)` - the host system),
-  Tensura Quests (`tensura_quests` `[1.0.0-alpha.8,)` - the task and reward
-  types the chapters use).
+  Tensura Quests (`tensura_quests` `[1.0.0-alpha.8,)` - our task and reward
+  types), Tensura Compat: FTB (`tensura_ftb` `[2.0.0.4,)` - the native
+  race/spirit/ability/awakening/existence types the Reincarnation line reads).
 - Optional: none declared yet. Individual sub-questlines may need optional
   content systems (Sympathetic Jobs, Infinite Dungeon suite, Lightman's
   Currency) - add those dependencies together with the line that needs them,
   gated the way AGENTS requires.
 
 **Test:** `./gradlew runGameTestServer` — `TensuraQuestlinesGameTests` and
-`ChapterDeliveryGameTests` (4 tests). `expectedTests = 4` in `build.gradle`
+`ChapterDeliveryGameTests` (5 tests). `expectedTests = 5` in `build.gradle`
 must match the `@GameTest` count.
 
 **Remote:** `github.com/HexaHexes/tensura-questlines` (public, default branch
@@ -59,6 +60,13 @@ must match the `@GameTest` count.
 - Authoring map: specs live in `content/` (one class per major line, e.g.
   `ReincarnationContent`), the registry is `QuestlineContent`, and the only
   object ids you may write are the ones `ChapterIds` allocates.
+- Native `tensura_ftb` types (Race, Spirit, Ability, Awakening, Existence)
+  are consumed exactly as registered - never reimplemented, wrapped or
+  re-derived (the never-duplicate rule).
+- The GameTest FTB stack pins track the pack's shipped versions, and they
+  are coupled: FTB Chunks (staged for `tensura_ftb`'s mixin) requires FTB
+  Library `2101.1.39` or above, so bumping one means bumping its neighbours
+  and re-running `runGameTestServer`.
 - Editing issue or PR text on Windows? Never pipe it through PowerShell 5.1
   (the console mangles non-ASCII, arrows arrive as mojibake): write a UTF-8
   file and use `gh --body-file` / `gh --input`.

@@ -5,6 +5,8 @@ import dev.ftb.mods.ftbquests.quest.Quest;
 import dev.ftb.mods.ftbquests.quest.task.CheckmarkTask;
 import dev.ftb.mods.ftbquests.quest.task.ItemTask;
 import dev.ftb.mods.ftbquests.quest.task.Task;
+import io.github.manasmods.tensura_ftb.tasks.RaceTask;
+import io.github.manasmods.tensura_ftb.tasks.SpiritTask;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -32,7 +34,11 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count) {
         /** Completes when the player clicks the task. */
         CHECKMARK,
         /** Completes when the player holds {@code count} of the item. */
-        ITEM
+        ITEM,
+        /** Native Tensura Compat: FTB check - the player has settled a race. */
+        RACE,
+        /** Native Tensura Compat: FTB check - the player's spirit has stirred. */
+        SPIRIT
     }
 
     /**
@@ -51,6 +57,26 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count) {
      */
     public static TaskSpec item(long id, Item item, int count) {
         return new TaskSpec(id, Kind.ITEM, new ItemStack(item, count), count);
+    }
+
+    /**
+     * A native race check: completes when the player has settled a race.
+     *
+     * @param id the quest-file object id
+     * @return a race-check spec
+     */
+    public static TaskSpec race(long id) {
+        return new TaskSpec(id, Kind.RACE, ItemStack.EMPTY, 0);
+    }
+
+    /**
+     * A native spirit check: completes when the player's spirit has stirred.
+     *
+     * @param id the quest-file object id
+     * @return a spirit-check spec
+     */
+    public static TaskSpec spirit(long id) {
+        return new TaskSpec(id, Kind.SPIRIT, ItemStack.EMPTY, 0);
     }
 
     /**
@@ -73,6 +99,10 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count) {
         Task task;
         if (kind == Kind.ITEM) {
             task = new ItemTask(id, quest).setStackAndCount(stack, count);
+        } else if (kind == Kind.RACE) {
+            task = new RaceTask(id, quest);
+        } else if (kind == Kind.SPIRIT) {
+            task = new SpiritTask(id, quest);
         } else {
             task = new CheckmarkTask(id, quest);
         }

@@ -8,8 +8,8 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.world.entity.player.Player;
 
 /**
- * Isolated quest file standing in for ServerQuestFile in GameTests, mirroring
- * the fixture the tensura-quests suites use.
+ * Isolated quest file standing in for ServerQuestFile in GameTests, modelled
+ * on the fixture the tensura-quests suites use.
  *
  * <p>Each test builds its own instance, so no test touches the run's real
  * quest file, and nothing is ever persisted - {@code getFolder} is not
@@ -48,10 +48,5 @@ final class TestQuestFile extends BaseQuestFile {
     @Override
     public String getLocale() {
         return "en_us";
-    }
-
-    @Override
-    public boolean isDefaultPerTeamReward() {
-        return false;
     }
 }
