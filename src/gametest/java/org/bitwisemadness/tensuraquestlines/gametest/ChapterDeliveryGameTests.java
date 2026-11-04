@@ -3,9 +3,11 @@ package org.bitwisemadness.tensuraquestlines.gametest;
 import dev.architectury.utils.Env;
 import dev.ftb.mods.ftbquests.quest.Chapter;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.neoforged.fml.ModList;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import org.bitwisemadness.tensuraquestlines.TensuraQuestlines;
@@ -47,6 +49,22 @@ public final class ChapterDeliveryGameTests {
         helper.assertTrue(file.getQuest(first.id()) != null, "quest ids must resolve");
         helper.assertTrue(file.getTask(first.tasks().get(0).id()) != null, "task ids must resolve");
         helper.assertTrue(file.getReward(first.rewards().get(0).id()) != null, "reward ids must resolve");
+        helper.succeed();
+    }
+
+    /** Declared optional mods are real and loaded; a missing one gates the chapter out. */
+    @GameTest(template = "empty")
+    public static void chapters_declare_loaded_optional_mods(GameTestHelper helper) {
+        for (AuthoredChapter chapter : QuestlineContent.chapters()) {
+            for (String modId : chapter.requiredMods()) {
+                helper.assertTrue(ModList.get().isLoaded(modId),
+                    "chapter " + chapter.id() + " requires " + modId + ", which is not loaded here");
+            }
+            helper.assertTrue(chapter.isAvailable(), "chapter " + chapter.id() + " must be available here");
+        }
+        AuthoredChapter absent = AuthoredChapter.requiring(List.of("no_such_mod_anywhere"), 1L, "absent", List.of());
+        helper.assertTrue(!absent.isAvailable(),
+            "a chapter naming an unloaded mod must be unavailable so delivery skips it");
         helper.succeed();
     }
 

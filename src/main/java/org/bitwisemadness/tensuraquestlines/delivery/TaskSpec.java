@@ -15,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.bitwisemadness.tensuraquests.tasks.JobParticipationTask;
 
 /**
  * One authored task inside a quest.
@@ -52,7 +53,9 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
         /** Native threshold on one existence counter. */
         EXISTENCE,
         /** Native check on the player's awakening. */
-        AWAKENING
+        AWAKENING,
+        /** Native check that the player has joined and worked one named job. */
+        JOB_PARTICIPATION
     }
 
     /**
@@ -64,10 +67,11 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      * @param existence the counter to threshold, for {@link Kind#EXISTENCE}
      * @param existenceValue the threshold, for {@link Kind#EXISTENCE}
      * @param awakening the awakening required, for {@link Kind#AWAKENING}
+     * @param job the Sympathetic Jobs job name, for {@link Kind#JOB_PARTICIPATION}
      */
     public record Tensura(ResourceLocation skill, AbilityTask.AcquisitionStatus abilityStatus,
                           ExistenceTask.ExistenceType existence, long existenceValue,
-                          AwakeningTask.AwakeningStatus awakening) {
+                          AwakeningTask.AwakeningStatus awakening, String job) {
     }
 
     /**
@@ -136,7 +140,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      */
     public static TaskSpec ability(long id, ResourceLocation skill, AbilityTask.AcquisitionStatus status) {
         return new TaskSpec(id, Kind.ABILITY, ItemStack.EMPTY, 0,
-            new Tensura(skill, status, null, 0L, null));
+            new Tensura(skill, status, null, 0L, null, null));
     }
 
     /**
@@ -151,7 +155,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      */
     public static TaskSpec existence(long id, ExistenceTask.ExistenceType existence, long value) {
         return new TaskSpec(id, Kind.EXISTENCE, ItemStack.EMPTY, 0,
-            new Tensura(null, null, existence, value, null));
+            new Tensura(null, null, existence, value, null, null));
     }
 
     /**
@@ -163,7 +167,26 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      */
     public static TaskSpec awakening(long id, AwakeningTask.AwakeningStatus awakening) {
         return new TaskSpec(id, Kind.AWAKENING, ItemStack.EMPTY, 0,
-            new Tensura(null, null, null, 0L, awakening));
+            new Tensura(null, null, null, 0L, awakening, null));
+    }
+
+    /**
+     * A native Sympathetic Jobs participation check: completes once the
+     * player has genuinely worked the named job. The job name must be one of
+     * the pack's twelve jobs, or the task can never complete (the type warns
+     * about unknown names rather than failing).
+     *
+     * <p>The chapter that uses this declares {@code sympatheticjobs} in its
+     * required mods, so the questline ships dormant where the jobs system is
+     * absent or off-pin.</p>
+     *
+     * @param id the quest-file object id
+     * @param job the job name, e.g. {@code miner}
+     * @return a job-participation spec
+     */
+    public static TaskSpec jobParticipation(long id, String job) {
+        return new TaskSpec(id, Kind.JOB_PARTICIPATION, ItemStack.EMPTY, 0,
+            new Tensura(null, null, null, 0L, null, job));
     }
 
     /**
@@ -198,6 +221,8 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
             task = configuredExistence(quest);
         } else if (kind == Kind.AWAKENING) {
             task = configuredAwakening(quest);
+        } else if (kind == Kind.JOB_PARTICIPATION) {
+            task = configuredJobParticipation(quest);
         } else {
             task = new CheckmarkTask(id, quest);
         }
@@ -220,6 +245,12 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
         existence.readData(tag, quest.getQuestFile().holderLookup());
         existence.setValue(tensura.existenceValue());
         return existence;
+    }
+
+    private JobParticipationTask configuredJobParticipation(Quest quest) {
+        JobParticipationTask participation = new JobParticipationTask(id, quest);
+        participation.setJob(tensura.job());
+        return participation;
     }
 
     private AwakeningTask configuredAwakening(Quest quest) {

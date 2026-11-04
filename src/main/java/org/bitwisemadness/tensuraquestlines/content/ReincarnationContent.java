@@ -37,7 +37,7 @@ public final class ReincarnationContent {
      */
     public static AuthoredChapter firstSteps() {
         int chapter = FIRST_STEPS_CHAPTER;
-        return new AuthoredChapter(ChapterIds.chapter(chapter), "First Steps", List.of(
+        return AuthoredChapter.of(ChapterIds.chapter(chapter), "First Steps", List.of(
             new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
                 "Arrival",
                 "The world is new. Make it to dawn.",
@@ -81,7 +81,7 @@ public final class ReincarnationContent {
      */
     public static AuthoredChapter raceAndNature() {
         int chapter = RACE_AND_NATURE_CHAPTER;
-        return new AuthoredChapter(ChapterIds.chapter(chapter), "Race & Nature", List.of(
+        return AuthoredChapter.of(ChapterIds.chapter(chapter), "Race & Nature", List.of(
             new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
                 "What Am I?",
                 "Something in you is not human any more. Find out what.",
@@ -123,7 +123,7 @@ public final class ReincarnationContent {
      */
     public static AuthoredChapter firstSkills() {
         int chapter = FIRST_SKILLS_CHAPTER;
-        return new AuthoredChapter(ChapterIds.chapter(chapter), "First Skills", List.of(
+        return AuthoredChapter.of(ChapterIds.chapter(chapter), "First Skills", List.of(
             new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
                 "A Skill to Call Your Own",
                 "The ability menu decides who you become. Open it.",
@@ -172,7 +172,7 @@ public final class ReincarnationContent {
      */
     public static AuthoredChapter awakenings() {
         int chapter = AWAKENINGS_CHAPTER;
-        return new AuthoredChapter(ChapterIds.chapter(chapter), "Awakenings", List.of(
+        return AuthoredChapter.of(ChapterIds.chapter(chapter), "Awakenings", List.of(
             new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
                 "The Stirring",
                 "Your aura answers before you do.",

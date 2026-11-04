@@ -32,7 +32,7 @@ issues are detailed.
   gated the way AGENTS requires.
 
 **Test:** `./gradlew runGameTestServer` — `TensuraQuestlinesGameTests` and
-`ChapterDeliveryGameTests` (5 tests). `expectedTests = 5` in `build.gradle`
+`ChapterDeliveryGameTests` (6 tests). `expectedTests = 6` in `build.gradle`
 must match the `@GameTest` count.
 
 **Remote:** `github.com/HexaHexes/tensura-questlines` (public, default branch
@@ -85,6 +85,21 @@ must match the `@GameTest` count.
   threshold and reward value in `content/` is a first-pass number: the
   game-testing round tunes them, and any change is an ordinary content
   revision.
+- A chapter that reads an **optional content system** declares it through
+  `AuthoredChapter.requiring(...)`: delivery skips the chapter when a listed
+  mod is absent (dormant content) and isolates failures per chapter, so one
+  broken family can never take the rest of the questlines down. Professions
+  uses `sympatheticjobs`; the same shape is ready for Commerce
+  (`lightmanscurrency`), the Depths and Trials.
+- **Job names must be one of the pack's twelve** (`miner`, `artisan`,
+  `brewer`, `fighter`, `hunter`, `enchanter`, `explorer`, `farmer`, `cook`,
+  `shaman`, `lumberjack`, `guardian`): the type warns about unknown names
+  rather than failing, so a typo would be a silently uncompletable quest.
+  Sympathetic Jobs also caps held jobs globally (`maxJobsGlobal` is 3 in the
+  pack), which multi-job chapters must respect.
+- The build compiles against `tensura_quests` from GitHub Packages, so every
+  CI Gradle step needs the package read secret: the junit step now carries it
+  alongside static, codeql and dependency-submission.
 - Editing issue or PR text on Windows? Never pipe it through PowerShell 5.1
   (the console mangles non-ASCII, arrows arrive as mojibake): write a UTF-8
   file and use `gh --body-file` / `gh --input`.

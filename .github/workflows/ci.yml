@@ -31,7 +31,13 @@ jobs:
           java-version: '21'
           cache: gradle
 
+      # The build compiles against tensura_quests from GitHub Packages, and
+      # the workflow's own token cannot read a package owned by another
+      # repository - so this step needs the read secret, Gradle steps only.
       - name: Build and run JUnit suite
+        env:
+          PACKAGE_READ_TOKEN: ${{ secrets.PACKAGE_READ_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PACKAGE_READ_TOKEN || github.token }}
         run: ./gradlew build --no-daemon --stacktrace
 
       # With no test sources :test is NO-SOURCE and build still reports SUCCESS,

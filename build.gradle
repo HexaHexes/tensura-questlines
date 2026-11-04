@@ -198,6 +198,12 @@ dependencies {
     compileOnly "curse.maven:architectury-419699:${architectury_file_id}"
     compileOnly 'curse.maven:tensura-compat-ftb-1501493:8375576' // tensura_ftb-neoforge-2.0.0.4
     compileOnly 'curse.maven:tensura-skill-books-1418495:9055170' // tensura_skill_books-neoforge-2.2.3
+
+    // The job family the Professions line reads: our own types, resolved from
+    // GitHub Packages (the engine artifact and the api artifact its POM
+    // declares). CI's Gradle steps carry PACKAGE_READ_TOKEN for this.
+    compileOnly "org.bitwisemadness.tensuraquests:tensura_quests:${tensura_quests_version}"
+    compileOnly "org.bitwisemadness.tensuraquestsapi:tensura_quests_api:${tensura_quests_api_version}"
 }
 
 // Stage the runtime closure into run/mods for the GameTest server: Sync
@@ -216,7 +222,7 @@ test {
 // Grade the run on the log summary: the task's exit code is not a reliable
 // signal. Keep expectedTests in sync with the @GameTest methods.
 tasks.matching { it.name == 'runGameTestServer' }.configureEach {
-    def expectedTests = 5
+    def expectedTests = 6
     dependsOn 'prepareGametestMods'
     doLast {
         def log = file('run/logs/latest.log')

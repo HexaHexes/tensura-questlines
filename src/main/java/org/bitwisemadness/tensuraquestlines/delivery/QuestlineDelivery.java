@@ -33,6 +33,11 @@ import org.bitwisemadness.tensuraquestlines.content.QuestlineContent;
  * objects there wedges the batch with no error (observed twice, with the
  * no-mutation run passing) - so the suite exercises delivery through its own
  * isolated quest file instead. Production servers deliver normally.</p>
+ *
+ * <p>Delivery is per-chapter fault-isolated and availability-gated: a chapter
+ * whose optional content system is absent is skipped (dormant content), and a
+ * chapter that throws is logged and skipped so one broken or unregistered
+ * family can never take the rest of the questlines down with it.</p>
  */
 @EventBusSubscriber(modid = TensuraQuestlines.MOD_ID)
 public final class QuestlineDelivery {
@@ -64,18 +69,27 @@ public final class QuestlineDelivery {
 
     private static void deliver(ServerQuestFile file) {
         delivered = true;
-        try {
-            boolean changed = false;
-            for (AuthoredChapter chapter : QuestlineContent.chapters()) {
+        boolean changed = false;
+        int applied = 0;
+        int skipped = 0;
+        for (AuthoredChapter chapter : QuestlineContent.chapters()) {
+            if (!chapter.isAvailable()) {
+                skipped++;
+                continue;
+            }
+            try {
                 changed |= chapter.apply(file);
+                applied++;
+            } catch (RuntimeException error) {
+                TensuraQuestlines.LOGGER.error("Chapter {} failed to deliver; the rest continue",
+                    chapter.id(), error);
             }
-            if (changed) {
-                file.markDirty();
-            }
-            TensuraQuestlines.LOGGER.info("Delivered {} authored chapter(s), changed={}",
-                QuestlineContent.chapters().size(), changed);
-        } catch (RuntimeException error) {
-            TensuraQuestlines.LOGGER.error("Authored chapter delivery failed; content may be missing this session", error);
         }
+        if (changed) {
+            file.markDirty();
+        }
+        TensuraQuestlines.LOGGER.info(
+            "Delivered {} of {} authored chapter(s), {} skipped (optional system absent), changed={}",
+            applied, QuestlineContent.chapters().size(), skipped, changed);
     }
 }
