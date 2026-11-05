@@ -91,6 +91,12 @@ must match the `@GameTest` count.
   broken family can never take the rest of the questlines down. Professions
   uses `sympatheticjobs`; the same shape is ready for Commerce
   (`lightmanscurrency`), the Depths and Trials.
+- Slot unlocks work the way T:SJ reads them: `effectiveSlotLimit(player)` is
+  the player's override when one is set, and `MAX_JOBS_GLOBAL` (the pack's
+  default, 3) otherwise. Our unlock reward raises the override through SJ's
+  own write path, and SJ clamps the result to its job count, so a rung is
+  always meaningful yet can never over-grant. Rungs are one-time quests -
+  nothing in the ladder needs repeatable quest support.
 - The Professions ladder tops out at the pack's cap: Sympathetic Jobs sets
   `maxLevel = 25` on the shared curve (`XP(25) = 5188`), so the major's
   original "25/50" beat was amended to a 25 capstone when Competence landed.

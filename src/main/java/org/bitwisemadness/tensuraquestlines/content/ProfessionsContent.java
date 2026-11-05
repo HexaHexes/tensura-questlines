@@ -6,6 +6,7 @@ import org.bitwisemadness.tensuraquestlines.delivery.AuthoredChapter;
 import org.bitwisemadness.tensuraquestlines.delivery.QuestSpec;
 import org.bitwisemadness.tensuraquestlines.delivery.RewardSpec;
 import org.bitwisemadness.tensuraquestlines.delivery.TaskSpec;
+import org.bitwisemadness.tensuraquests.tasks.JobRequirement;
 
 /**
  * Major questline 2, Professions (HexaHexes/tensura-quests#30): a nation of
@@ -21,6 +22,7 @@ public final class ProfessionsContent {
 
     private static final int FIRST_JOB_CHAPTER = 5;
     private static final int COMPETENCE_CHAPTER = 6;
+    private static final int WIDER_BENCH_CHAPTER = 7;
     private static final List<String> SYMPATHETIC_JOBS = List.of("sympatheticjobs");
 
     private ProfessionsContent() {
@@ -102,6 +104,50 @@ public final class ProfessionsContent {
                 "Next: room for more trades. See The Wider Bench.",
                 List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 3, 0))),
                 List.of(RewardSpec.item(ChapterIds.reward(chapter, 3, 0), Items.EMERALD, 12)))
+        ));
+    }
+
+    /**
+     * Sub-questline 3, The Wider Bench (HexaHexes/tensura-questlines#8):
+     * earn and spend job-slot unlocks.
+     *
+     * <p>Each rung proves breadth first - a multi-job mastery threshold over
+     * the two trades First Job and Competence established - and then grants
+     * one slot through the native unlock reward. The reward raises the
+     * claiming player's effective slot limit (Sympathetic Jobs uses the
+     * override when set and its own global default otherwise, clamping to its
+     * job count), so the ladder is meaningful above the pack's default of
+     * three. Rungs are one-time quests; nothing here needs repeatable quest
+     * support.</p>
+     *
+     * @return the Wider Bench chapter spec
+     */
+    public static AuthoredChapter widerBench() {
+        int chapter = WIDER_BENCH_CHAPTER;
+        return AuthoredChapter.requiring(SYMPATHETIC_JOBS, ChapterIds.chapter(chapter), "The Wider Bench", List.of(
+            new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                "More Than One Trade",
+                "A bench with one tool is a hobby.",
+                List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 0, 0))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.EMERALD, 8))),
+            new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                "Room for More",
+                "Prove both trades, then take the slot.",
+                List.of(TaskSpec.multiJobMastery(ChapterIds.task(chapter, 1, 0),
+                    List.of(new JobRequirement("miner", 5), new JobRequirement("lumberjack", 5)))),
+                List.of(RewardSpec.unlockJobSlot(ChapterIds.reward(chapter, 1, 0), 1))),
+            new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                "Bench Expansion",
+                "Deeper in both, and one slot further.",
+                List.of(TaskSpec.multiJobMastery(ChapterIds.task(chapter, 2, 0),
+                    List.of(new JobRequirement("miner", 10), new JobRequirement("lumberjack", 10)))),
+                List.of(RewardSpec.unlockJobSlot(ChapterIds.reward(chapter, 2, 0), 1))),
+            new QuestSpec(ChapterIds.quest(chapter, 3), 4.5D, 0.0D,
+                "The Full Rack",
+                "Both trades at fifteen, and the last slot this pack needs. Next: Double Life.",
+                List.of(TaskSpec.multiJobMastery(ChapterIds.task(chapter, 3, 0),
+                    List.of(new JobRequirement("miner", 15), new JobRequirement("lumberjack", 15)))),
+                List.of(RewardSpec.unlockJobSlot(ChapterIds.reward(chapter, 3, 0), 1)))
         ));
     }
 }
