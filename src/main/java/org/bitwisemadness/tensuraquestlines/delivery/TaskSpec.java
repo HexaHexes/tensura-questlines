@@ -10,6 +10,7 @@ import io.github.manasmods.tensura_ftb.tasks.AwakeningTask;
 import io.github.manasmods.tensura_ftb.tasks.ExistenceTask;
 import io.github.manasmods.tensura_ftb.tasks.RaceTask;
 import io.github.manasmods.tensura_ftb.tasks.SpiritTask;
+import java.util.List;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
@@ -17,6 +18,8 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import org.bitwisemadness.tensuraquests.tasks.JobMasteryTask;
 import org.bitwisemadness.tensuraquests.tasks.JobParticipationTask;
+import org.bitwisemadness.tensuraquests.tasks.JobRequirement;
+import org.bitwisemadness.tensuraquests.tasks.MultiJobMasteryTask;
 
 /**
  * One authored task inside a quest.
@@ -58,7 +61,9 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
         /** Native check that the player has joined and worked one named job. */
         JOB_PARTICIPATION,
         /** Native threshold on one named job's level. */
-        JOB_MASTERY
+        JOB_MASTERY,
+        /** Native threshold across several jobs at once. */
+        MULTI_JOB_MASTERY
     }
 
     /**
@@ -70,13 +75,47 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      * @param existence the counter to threshold, for {@link Kind#EXISTENCE}
      * @param existenceValue the threshold, for {@link Kind#EXISTENCE}
      * @param awakening the awakening required, for {@link Kind#AWAKENING}
-     * @param job the Sympathetic Jobs job name, for {@link Kind#JOB_PARTICIPATION}
-     *            and {@link Kind#JOB_MASTERY}
-     * @param jobLevel the job level threshold, for {@link Kind#JOB_MASTERY}
+     * @param job the Sympathetic Jobs payload, for the job kinds
      */
     public record Tensura(ResourceLocation skill, AbilityTask.AcquisitionStatus abilityStatus,
                           ExistenceTask.ExistenceType existence, long existenceValue,
-                          AwakeningTask.AwakeningStatus awakening, String job, int jobLevel) {
+                          AwakeningTask.AwakeningStatus awakening, Job job) {
+    }
+
+    /**
+     * The Sympathetic Jobs payload: one job, or several at once.
+     *
+     * @param name the job to watch, for participation and mastery; null for
+     *             the multi-job kind
+     * @param level the level threshold, for mastery
+     * @param requirements the per-job level requirements, for multi-job mastery
+     */
+    public record Job(String name, int level, List<JobRequirement> requirements) {
+
+        /**
+         * @param name the job name
+         * @return a participation payload for that job
+         */
+        public static Job participation(String name) {
+            return new Job(name, 0, List.of());
+        }
+
+        /**
+         * @param name the job name
+         * @param level the level threshold
+         * @return a single-job mastery payload
+         */
+        public static Job mastery(String name, int level) {
+            return new Job(name, level, List.of());
+        }
+
+        /**
+         * @param requirements the per-job level requirements
+         * @return a multi-job mastery payload
+         */
+        public static Job multi(List<JobRequirement> requirements) {
+            return new Job(null, 0, List.copyOf(requirements));
+        }
     }
 
     /**
@@ -145,7 +184,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      */
     public static TaskSpec ability(long id, ResourceLocation skill, AbilityTask.AcquisitionStatus status) {
         return new TaskSpec(id, Kind.ABILITY, ItemStack.EMPTY, 0,
-            new Tensura(skill, status, null, 0L, null, null, 0));
+            new Tensura(skill, status, null, 0L, null, null));
     }
 
     /**
@@ -160,7 +199,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      */
     public static TaskSpec existence(long id, ExistenceTask.ExistenceType existence, long value) {
         return new TaskSpec(id, Kind.EXISTENCE, ItemStack.EMPTY, 0,
-            new Tensura(null, null, existence, value, null, null, 0));
+            new Tensura(null, null, existence, value, null, null));
     }
 
     /**
@@ -172,7 +211,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      */
     public static TaskSpec awakening(long id, AwakeningTask.AwakeningStatus awakening) {
         return new TaskSpec(id, Kind.AWAKENING, ItemStack.EMPTY, 0,
-            new Tensura(null, null, null, 0L, awakening, null, 0));
+            new Tensura(null, null, null, 0L, awakening, null));
     }
 
     /**
@@ -191,7 +230,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      */
     public static TaskSpec jobParticipation(long id, String job) {
         return new TaskSpec(id, Kind.JOB_PARTICIPATION, ItemStack.EMPTY, 0,
-            new Tensura(null, null, null, 0L, null, job, 0));
+            new Tensura(null, null, null, 0L, null, Job.participation(job)));
     }
 
     /**
@@ -207,7 +246,20 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      */
     public static TaskSpec jobMastery(long id, String job, int level) {
         return new TaskSpec(id, Kind.JOB_MASTERY, ItemStack.EMPTY, 0,
-            new Tensura(null, null, null, 0L, null, job, level));
+            new Tensura(null, null, null, 0L, null, Job.mastery(job, level)));
+    }
+
+    /**
+     * A native multi-job mastery threshold: completes when every listed job
+     * reaches its listed level.
+     *
+     * @param id the quest-file object id
+     * @param requirements the per-job level requirements
+     * @return a multi-job mastery spec
+     */
+    public static TaskSpec multiJobMastery(long id, List<JobRequirement> requirements) {
+        return new TaskSpec(id, Kind.MULTI_JOB_MASTERY, ItemStack.EMPTY, 0,
+            new Tensura(null, null, null, 0L, null, Job.multi(requirements)));
     }
 
     /**
@@ -246,6 +298,8 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
             task = configuredJobParticipation(quest);
         } else if (kind == Kind.JOB_MASTERY) {
             task = configuredJobMastery(quest);
+        } else if (kind == Kind.MULTI_JOB_MASTERY) {
+            task = configuredMultiJobMastery(quest);
         } else {
             task = new CheckmarkTask(id, quest);
         }
@@ -272,15 +326,21 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
 
     private JobParticipationTask configuredJobParticipation(Quest quest) {
         JobParticipationTask participation = new JobParticipationTask(id, quest);
-        participation.setJob(tensura.job());
+        participation.setJob(tensura.job().name());
         return participation;
     }
 
     private JobMasteryTask configuredJobMastery(Quest quest) {
         JobMasteryTask mastery = new JobMasteryTask(id, quest);
-        mastery.setJob(tensura.job());
-        mastery.setRequiredLevel(tensura.jobLevel());
+        mastery.setJob(tensura.job().name());
+        mastery.setRequiredLevel(tensura.job().level());
         return mastery;
+    }
+
+    private MultiJobMasteryTask configuredMultiJobMastery(Quest quest) {
+        MultiJobMasteryTask multi = new MultiJobMasteryTask(id, quest);
+        multi.setRequirements(tensura.job().requirements());
+        return multi;
     }
 
     private AwakeningTask configuredAwakening(Quest quest) {
