@@ -24,6 +24,7 @@ public final class ProfessionsContent {
     private static final int COMPETENCE_CHAPTER = 6;
     private static final int WIDER_BENCH_CHAPTER = 7;
     private static final int DOUBLE_LIFE_CHAPTER = 8;
+    private static final int MASTER_OF_TRADES_CHAPTER = 9;
     private static final List<String> SYMPATHETIC_JOBS = List.of("sympatheticjobs");
 
     private ProfessionsContent() {
@@ -184,6 +185,44 @@ public final class ProfessionsContent {
                 "Next: add the third trade. See Master of Trades.",
                 List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 2, 0))),
                 List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.EMERALD, 20)))
+        ));
+    }
+
+    /**
+     * Sub-questline 5, Master of Trades (HexaHexes/tensura-questlines#10):
+     * the line's capstone and its handoff into Commerce.
+     *
+     * <p>The capstone criterion keeps both trades at the level cap and takes a
+     * third trade to a real but honest depth. Artisan's XP table pays by
+     * crafted value (a diamond tool is 50, iron 1), so a cap-level artisan bar
+     * would mean hundreds of crafts; entry at level 10 is the balanced ask
+     * that still proves the third trade. The handoff names Commerce's First
+     * Coin (bridge 2-to-3) and nods at the Miner's other road, the Depths
+     * (bridge 2-to-4), with vanilla capital rather than coin - Commerce owns
+     * the currency.</p>
+     *
+     * @return the Master of Trades chapter spec
+     */
+    public static AuthoredChapter masterOfTrades() {
+        int chapter = MASTER_OF_TRADES_CHAPTER;
+        return AuthoredChapter.requiring(SYMPATHETIC_JOBS, ChapterIds.chapter(chapter), "Master of Trades", List.of(
+            new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                "The Third Trade",
+                "Both trades at the cap, and a third finally begun.",
+                List.of(TaskSpec.multiJobMastery(ChapterIds.task(chapter, 0, 0),
+                    List.of(new JobRequirement("miner", 25), new JobRequirement("lumberjack", 25),
+                        new JobRequirement("artisan", 10)))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.DIAMOND, 6))),
+            new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                "Master of Trades",
+                "A bench full of trades, all of them yours.",
+                List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 1, 0))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.DIAMOND, 8))),
+            new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                "The Handoff",
+                "Mastered goods become wares: next, First Coin. Or take the pick below, into the Depths.",
+                List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 2, 0))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.EMERALD_BLOCK, 2)))
         ));
     }
 }
