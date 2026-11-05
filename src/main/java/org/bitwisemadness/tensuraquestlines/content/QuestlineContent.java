@@ -20,7 +20,8 @@ public final class QuestlineContent {
         ReincarnationContent.awakenings(),
         ProfessionsContent.firstJob(),
         ProfessionsContent.competence(),
-        ProfessionsContent.widerBench()
+        ProfessionsContent.widerBench(),
+        ProfessionsContent.doubleLife()
     );
 
     private QuestlineContent() {

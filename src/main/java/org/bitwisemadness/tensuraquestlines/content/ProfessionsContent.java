@@ -23,6 +23,7 @@ public final class ProfessionsContent {
     private static final int FIRST_JOB_CHAPTER = 5;
     private static final int COMPETENCE_CHAPTER = 6;
     private static final int WIDER_BENCH_CHAPTER = 7;
+    private static final int DOUBLE_LIFE_CHAPTER = 8;
     private static final List<String> SYMPATHETIC_JOBS = List.of("sympatheticjobs");
 
     private ProfessionsContent() {
@@ -148,6 +149,41 @@ public final class ProfessionsContent {
                 List.of(TaskSpec.multiJobMastery(ChapterIds.task(chapter, 3, 0),
                     List.of(new JobRequirement("miner", 15), new JobRequirement("lumberjack", 15)))),
                 List.of(RewardSpec.unlockJobSlot(ChapterIds.reward(chapter, 3, 0), 1)))
+        ));
+    }
+
+    /**
+     * Sub-questline 4, Double Life (HexaHexes/tensura-questlines#9):
+     * multi-job mastery - carrying two trades to the top at once.
+     *
+     * <p>Both rungs read the multi-job mastery task, so nothing here needs a
+     * new type: the ladder is the two trades First Job and Competence raised,
+     * driven towards the pack's level cap (25). The finale hands off to Master
+     * of Trades, whose capstone adds the third trade the pack's default of
+     * three slots already allows.</p>
+     *
+     * @return the Double Life chapter spec
+     */
+    public static AuthoredChapter doubleLife() {
+        int chapter = DOUBLE_LIFE_CHAPTER;
+        return AuthoredChapter.requiring(SYMPATHETIC_JOBS, ChapterIds.chapter(chapter), "Double Life", List.of(
+            new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                "Two Trades",
+                "Two trades, both near the top of their curve.",
+                List.of(TaskSpec.multiJobMastery(ChapterIds.task(chapter, 0, 0),
+                    List.of(new JobRequirement("miner", 20), new JobRequirement("lumberjack", 20)))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.EMERALD, 16))),
+            new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                "Balancing Act",
+                "Both at the cap. This is the double life.",
+                List.of(TaskSpec.multiJobMastery(ChapterIds.task(chapter, 1, 0),
+                    List.of(new JobRequirement("miner", 25), new JobRequirement("lumberjack", 25)))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.DIAMOND, 2))),
+            new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                "Journeyman of All",
+                "Next: add the third trade. See Master of Trades.",
+                List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 2, 0))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.EMERALD, 20)))
         ));
     }
 }
