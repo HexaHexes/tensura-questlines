@@ -20,6 +20,7 @@ import org.bitwisemadness.tensuraquestlines.delivery.TaskSpec;
 public final class ProfessionsContent {
 
     private static final int FIRST_JOB_CHAPTER = 5;
+    private static final int COMPETENCE_CHAPTER = 6;
     private static final List<String> SYMPATHETIC_JOBS = List.of("sympatheticjobs");
 
     private ProfessionsContent() {
@@ -61,6 +62,46 @@ public final class ProfessionsContent {
                 "Next: prove competence. See Competence tiers.",
                 List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 3, 0))),
                 List.of(RewardSpec.item(ChapterIds.reward(chapter, 3, 0), Items.EMERALD, 8)))
+        ));
+    }
+
+    /**
+     * Sub-questline 2, Competence tiers (HexaHexes/tensura-questlines#7):
+     * early mastery, one trade deep.
+     *
+     * <p>Tiers are 5 / 10 / 15, chosen against the pack's own curve
+     * ({@code XP(25) = 5188}, {@code maxLevel = 25}) and leaving the
+     * capstone tier to Master of Trades. The mastery type is job-specific -
+     * it cannot express "any job" - so the ladder carries {@code miner},
+     * matching First Job and the recorded 2-to-4 bridge ("the Miner works
+     * the Depths"). Thresholds are first-pass numbers, tuned in the
+     * game-testing round.</p>
+     *
+     * @return the Competence tiers chapter spec
+     */
+    public static AuthoredChapter competence() {
+        int chapter = COMPETENCE_CHAPTER;
+        return AuthoredChapter.requiring(SYMPATHETIC_JOBS, ChapterIds.chapter(chapter), "Competence", List.of(
+            new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                "Getting Good",
+                "Five levels in: the pick starts to know you.",
+                List.of(TaskSpec.jobMastery(ChapterIds.task(chapter, 0, 0), "miner", 5)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.EMERALD, 6))),
+            new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                "Steady Hand",
+                "Ten levels: competence stops being luck.",
+                List.of(TaskSpec.jobMastery(ChapterIds.task(chapter, 1, 0), "miner", 10)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.EMERALD, 10))),
+            new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                "Depth in One",
+                "Fifteen levels of one trade, before you spread thin.",
+                List.of(TaskSpec.jobMastery(ChapterIds.task(chapter, 2, 0), "miner", 15)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.DIAMOND, 1))),
+            new QuestSpec(ChapterIds.quest(chapter, 3), 4.5D, 0.0D,
+                "Where It Leads",
+                "Next: room for more trades. See The Wider Bench.",
+                List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 3, 0))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 3, 0), Items.EMERALD, 12)))
         ));
     }
 }

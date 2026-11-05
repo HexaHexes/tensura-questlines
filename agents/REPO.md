@@ -91,6 +91,10 @@ must match the `@GameTest` count.
   broken family can never take the rest of the questlines down. Professions
   uses `sympatheticjobs`; the same shape is ready for Commerce
   (`lightmanscurrency`), the Depths and Trials.
+- The Professions ladder tops out at the pack's cap: Sympathetic Jobs sets
+  `maxLevel = 25` on the shared curve (`XP(25) = 5188`), so the major's
+  original "25/50" beat was amended to a 25 capstone when Competence landed.
+  Competence carries 5 / 10 / 15; only Master of Trades asks for the cap.
 - **Job names must be one of the pack's twelve** (`miner`, `artisan`,
   `brewer`, `fighter`, `hunter`, `enchanter`, `explorer`, `farmer`, `cook`,
   `shaman`, `lumberjack`, `guardian`): the type warns about unknown names

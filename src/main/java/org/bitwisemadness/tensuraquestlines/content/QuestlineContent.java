@@ -18,7 +18,8 @@ public final class QuestlineContent {
         ReincarnationContent.raceAndNature(),
         ReincarnationContent.firstSkills(),
         ReincarnationContent.awakenings(),
-        ProfessionsContent.firstJob()
+        ProfessionsContent.firstJob(),
+        ProfessionsContent.competence()
     );
 
     private QuestlineContent() {
