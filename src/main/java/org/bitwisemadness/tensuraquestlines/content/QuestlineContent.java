@@ -23,7 +23,8 @@ public final class QuestlineContent {
         ProfessionsContent.widerBench(),
         ProfessionsContent.doubleLife(),
         ProfessionsContent.masterOfTrades(),
-        CommerceContent.firstCoin()
+        CommerceContent.firstCoin(),
+        CommerceContent.openForBusiness()
     );
 
     private QuestlineContent() {

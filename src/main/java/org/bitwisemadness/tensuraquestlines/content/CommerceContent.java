@@ -23,6 +23,7 @@ import org.bitwisemadness.tensuraquestlines.delivery.TaskSpec;
 public final class CommerceContent {
 
     private static final int FIRST_COIN_CHAPTER = 10;
+    private static final int OPEN_FOR_BUSINESS_CHAPTER = 11;
     private static final List<String> LIGHTMANS_CURRENCY = List.of("lightmanscurrency");
     private static final ResourceLocation BASIC_WALLET =
         ResourceLocation.parse("lightmanscurrency:wallet_leather");
@@ -59,6 +60,41 @@ public final class CommerceContent {
                 "Small Change",
                 "Three trades in, the habit sticks. Next: Open for Business.",
                 List.of(TaskSpec.playerTransaction(ChapterIds.task(chapter, 2, 0), 3L)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.EMERALD, 8)))
+        ));
+    }
+
+    /**
+     * Sub-questline 2, Open for Business (HexaHexes/tensura-questlines#12):
+     * a shop of one's own, and the first sale through it.
+     *
+     * <p>Placing and stocking a trader has no native signal, so that beat is a
+     * checkmark, exactly as the sub-issue allows; the first sale is the real
+     * signal and the sales milestone carries it. The milestone's value is
+     * first-pass - Lightman's Currency defines coin values in its own
+     * data-driven coin list, so the unit is its base coin and the number is
+     * tuned in the game-testing round. The closing beat counts trades rather
+     * than value, which needs no scale at all.</p>
+     *
+     * @return the Open for Business chapter spec
+     */
+    public static AuthoredChapter openForBusiness() {
+        int chapter = OPEN_FOR_BUSINESS_CHAPTER;
+        return AuthoredChapter.requiring(LIGHTMANS_CURRENCY, ChapterIds.chapter(chapter), "Open for Business", List.of(
+            new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                "For Rent",
+                "Find a spot and place a trader. The count starts at the first sale.",
+                List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 0, 0))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.EMERALD, 4))),
+            new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                "Open Sign",
+                "Stock the shelves: one real sale opens the shop.",
+                List.of(TaskSpec.salesMilestone(ChapterIds.task(chapter, 1, 0), 100L)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.EMERALD, 6))),
+            new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                "Grand Opening",
+                "Five trades either way, then on to Repeat Customers.",
+                List.of(TaskSpec.playerTransaction(ChapterIds.task(chapter, 2, 0), 5L)),
                 List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.EMERALD, 8)))
         ));
     }
