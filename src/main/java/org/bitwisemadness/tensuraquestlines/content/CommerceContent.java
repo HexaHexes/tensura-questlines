@@ -24,6 +24,7 @@ public final class CommerceContent {
 
     private static final int FIRST_COIN_CHAPTER = 10;
     private static final int OPEN_FOR_BUSINESS_CHAPTER = 11;
+    private static final int REPEAT_CUSTOMERS_CHAPTER = 12;
     private static final List<String> LIGHTMANS_CURRENCY = List.of("lightmanscurrency");
     private static final ResourceLocation BASIC_WALLET =
         ResourceLocation.parse("lightmanscurrency:wallet_leather");
@@ -96,6 +97,39 @@ public final class CommerceContent {
                 "Five trades either way, then on to Repeat Customers.",
                 List.of(TaskSpec.playerTransaction(ChapterIds.task(chapter, 2, 0), 5L)),
                 List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.EMERALD, 8)))
+        ));
+    }
+
+    /**
+     * Sub-questline 3, Repeat Customers (HexaHexes/tensura-questlines#13):
+     * trading-partner tiers.
+     *
+     * <p>The type counts <em>distinct</em> counterparties and records a
+     * partner only on an accepted credit, so repeat trades with the same
+     * partner never inflate a tier - the thresholds mean what they say. Every
+     * tier reads that one fact at a higher count, so the chapter needs no new
+     * machinery and no value scale.</p>
+     *
+     * @return the Repeat Customers chapter spec
+     */
+    public static AuthoredChapter repeatCustomers() {
+        int chapter = REPEAT_CUSTOMERS_CHAPTER;
+        return AuthoredChapter.requiring(LIGHTMANS_CURRENCY, ChapterIds.chapter(chapter), "Repeat Customers", List.of(
+            new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                "A Familiar Face",
+                "One partner who came back is the start of a market.",
+                List.of(TaskSpec.tradingPartner(ChapterIds.task(chapter, 0, 0), 2L)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.EMERALD, 6))),
+            new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                "Regulars",
+                "Five distinct counterparties: the shop has a name now.",
+                List.of(TaskSpec.tradingPartner(ChapterIds.task(chapter, 1, 0), 5L)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.EMERALD, 10))),
+            new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                "The Usual Order",
+                "Ten partners deep. Next: The Ledger Grows.",
+                List.of(TaskSpec.tradingPartner(ChapterIds.task(chapter, 2, 0), 10L)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.EMERALD, 14)))
         ));
     }
 }

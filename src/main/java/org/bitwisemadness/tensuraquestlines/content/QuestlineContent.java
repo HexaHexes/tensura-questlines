@@ -24,7 +24,8 @@ public final class QuestlineContent {
         ProfessionsContent.doubleLife(),
         ProfessionsContent.masterOfTrades(),
         CommerceContent.firstCoin(),
-        CommerceContent.openForBusiness()
+        CommerceContent.openForBusiness(),
+        CommerceContent.repeatCustomers()
     );
 
     private QuestlineContent() {
