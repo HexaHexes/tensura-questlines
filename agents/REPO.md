@@ -75,9 +75,15 @@ must match the `@GameTest` count.
   must exist in the pack or the task can never complete, so check
   `config/tensura_skill_books/tensura_skill_books-loot-skills.txt` (a
   generated index of every registered skill id) before naming one.
-- Modded items in specs are resolved from `BuiltInRegistries.ITEM` at build
-  time, so the owning mod must be a declared dependency; a missing item
-  would silently produce an uncompletable task.
+- Modded items in specs are **resolved lazily**, when the task is created
+  rather than when the spec is built: a chapter's class load must never touch
+  a registry its optional mod's absence could leave unusable. Delivery's
+  per-chapter fault isolation is the second net, and the chapter's
+  `requiredMods` entry is the first.
+- The Lightman's Currency overlap audit came back clean: `lc_ftb_hook` sells
+  FTB Chunks claiming (claim ports, refunds, force-load takeover, marketplace
+  access) and registers **no quest tasks or rewards**, so the Commerce line
+  duplicates nothing.
 - Existence and awakening quests are authored through the same
   `readData` route (`existence`/`value` and `status` keys; the existence
   threshold also has the public `setValue`). Existence counters that track
