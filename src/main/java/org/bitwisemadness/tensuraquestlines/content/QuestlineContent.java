@@ -22,7 +22,8 @@ public final class QuestlineContent {
         ProfessionsContent.competence(),
         ProfessionsContent.widerBench(),
         ProfessionsContent.doubleLife(),
-        ProfessionsContent.masterOfTrades()
+        ProfessionsContent.masterOfTrades(),
+        CommerceContent.firstCoin()
     );
 
     private QuestlineContent() {

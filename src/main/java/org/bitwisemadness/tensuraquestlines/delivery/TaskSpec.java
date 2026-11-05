@@ -16,10 +16,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import org.bitwisemadness.tensuraquests.tasks.EconomyTask;
 import org.bitwisemadness.tensuraquests.tasks.JobMasteryTask;
 import org.bitwisemadness.tensuraquests.tasks.JobParticipationTask;
 import org.bitwisemadness.tensuraquests.tasks.JobRequirement;
 import org.bitwisemadness.tensuraquests.tasks.MultiJobMasteryTask;
+import org.bitwisemadness.tensuraquests.tasks.PlayerTransactionTask;
+import org.bitwisemadness.tensuraquests.tasks.SalesMilestoneTask;
+import org.bitwisemadness.tensuraquests.tasks.TradingPartnerTask;
 
 /**
  * One authored task inside a quest.
@@ -34,11 +38,17 @@ import org.bitwisemadness.tensuraquests.tasks.MultiJobMasteryTask;
  *
  * @param id the quest-file object id
  * @param kind which task to construct
- * @param stack the required stack for {@link Kind#ITEM}
+ * @param stack the required stack for {@link Kind#ITEM} when it is known at
+ *              authoring time (vanilla items)
  * @param count the required amount for {@link Kind#ITEM}
+ * @param itemId the required item's registry name for {@link Kind#ITEM} when
+ *               it belongs to another mod; resolved when the task is created,
+ *               never when the spec is built, so a chapter whose mod is absent
+ *               cannot break class loading
  * @param tensura the native-type payload, or null for the vanilla kinds
  */
-public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura tensura) {
+public record TaskSpec(long id, Kind kind, ItemStack stack, int count, ResourceLocation itemId,
+                       Tensura tensura) {
 
     /**
      * The task kinds this layer may author.
@@ -63,7 +73,13 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
         /** Native threshold on one named job's level. */
         JOB_MASTERY,
         /** Native threshold across several jobs at once. */
-        MULTI_JOB_MASTERY
+        MULTI_JOB_MASTERY,
+        /** Native count of completed trades the player took part in. */
+        PLAYER_TRANSACTION,
+        /** Native threshold on the coin value of the player's sales. */
+        SALES_MILESTONE,
+        /** Native count of distinct counterparties the player traded with. */
+        TRADING_PARTNER
     }
 
     /**
@@ -76,10 +92,30 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      * @param existenceValue the threshold, for {@link Kind#EXISTENCE}
      * @param awakening the awakening required, for {@link Kind#AWAKENING}
      * @param job the Sympathetic Jobs payload, for the job kinds
+     * @param economy the Lightman's Currency payload, for the economy kinds
      */
     public record Tensura(ResourceLocation skill, AbilityTask.AcquisitionStatus abilityStatus,
                           ExistenceTask.ExistenceType existence, long existenceValue,
-                          AwakeningTask.AwakeningStatus awakening, Job job) {
+                          AwakeningTask.AwakeningStatus awakening, Job job, Economy economy) {
+    }
+
+    /**
+     * The economy payload: a threshold on one of the three trade facts.
+     *
+     * @param target the threshold - a trade count, a coin value or a partner
+     *               count, depending on the kind
+     * @param allowTeamTrades whether a teammate's trade may credit this task;
+     *                        false keeps the attribution per-player
+     */
+    public record Economy(long target, boolean allowTeamTrades) {
+
+        /**
+         * @param target the threshold
+         * @return a per-player economy payload
+         */
+        public static Economy perPlayer(long target) {
+            return new Economy(target, false);
+        }
     }
 
     /**
@@ -123,7 +159,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      * @return a click-to-complete spec
      */
     public static TaskSpec checkmark(long id) {
-        return new TaskSpec(id, Kind.CHECKMARK, ItemStack.EMPTY, 0, null);
+        return new TaskSpec(id, Kind.CHECKMARK, ItemStack.EMPTY, 0, null, null);
     }
 
     /**
@@ -133,7 +169,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      * @return an item-requirement spec
      */
     public static TaskSpec item(long id, Item item, int count) {
-        return new TaskSpec(id, Kind.ITEM, new ItemStack(item, count), count, null);
+        return new TaskSpec(id, Kind.ITEM, new ItemStack(item, count), count, null, null);
     }
 
     /**
@@ -148,8 +184,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      * @return an item-requirement spec
      */
     public static TaskSpec item(long id, ResourceLocation itemId, int count) {
-        return new TaskSpec(id, Kind.ITEM, new ItemStack(BuiltInRegistries.ITEM.get(itemId), count),
-            count, null);
+        return new TaskSpec(id, Kind.ITEM, ItemStack.EMPTY, count, itemId, null);
     }
 
     /**
@@ -159,7 +194,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      * @return a race-check spec
      */
     public static TaskSpec race(long id) {
-        return new TaskSpec(id, Kind.RACE, ItemStack.EMPTY, 0, null);
+        return new TaskSpec(id, Kind.RACE, ItemStack.EMPTY, 0, null, null);
     }
 
     /**
@@ -169,7 +204,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      * @return a spirit-check spec
      */
     public static TaskSpec spirit(long id) {
-        return new TaskSpec(id, Kind.SPIRIT, ItemStack.EMPTY, 0, null);
+        return new TaskSpec(id, Kind.SPIRIT, ItemStack.EMPTY, 0, null, null);
     }
 
     /**
@@ -184,7 +219,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      */
     public static TaskSpec ability(long id, ResourceLocation skill, AbilityTask.AcquisitionStatus status) {
         return new TaskSpec(id, Kind.ABILITY, ItemStack.EMPTY, 0,
-            new Tensura(skill, status, null, 0L, null, null));
+            null, new Tensura(skill, status, null, 0L, null, null, null));
     }
 
     /**
@@ -199,7 +234,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      */
     public static TaskSpec existence(long id, ExistenceTask.ExistenceType existence, long value) {
         return new TaskSpec(id, Kind.EXISTENCE, ItemStack.EMPTY, 0,
-            new Tensura(null, null, existence, value, null, null));
+            null, new Tensura(null, null, existence, value, null, null, null));
     }
 
     /**
@@ -211,7 +246,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      */
     public static TaskSpec awakening(long id, AwakeningTask.AwakeningStatus awakening) {
         return new TaskSpec(id, Kind.AWAKENING, ItemStack.EMPTY, 0,
-            new Tensura(null, null, null, 0L, awakening, null));
+            null, new Tensura(null, null, null, 0L, awakening, null, null));
     }
 
     /**
@@ -230,7 +265,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      */
     public static TaskSpec jobParticipation(long id, String job) {
         return new TaskSpec(id, Kind.JOB_PARTICIPATION, ItemStack.EMPTY, 0,
-            new Tensura(null, null, null, 0L, null, Job.participation(job)));
+            null, new Tensura(null, null, null, 0L, null, Job.participation(job), null));
     }
 
     /**
@@ -246,7 +281,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      */
     public static TaskSpec jobMastery(long id, String job, int level) {
         return new TaskSpec(id, Kind.JOB_MASTERY, ItemStack.EMPTY, 0,
-            new Tensura(null, null, null, 0L, null, Job.mastery(job, level)));
+            null, new Tensura(null, null, null, 0L, null, Job.mastery(job, level), null));
     }
 
     /**
@@ -259,7 +294,48 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
      */
     public static TaskSpec multiJobMastery(long id, List<JobRequirement> requirements) {
         return new TaskSpec(id, Kind.MULTI_JOB_MASTERY, ItemStack.EMPTY, 0,
-            new Tensura(null, null, null, 0L, null, Job.multi(requirements)));
+            null, new Tensura(null, null, null, 0L, null, Job.multi(requirements), null));
+    }
+
+    /**
+     * A native trade-count check: completes when the player has taken part in
+     * {@code target} completed trades, as customer or as trader owner.
+     *
+     * @param id the quest-file object id
+     * @param target the number of completed trades
+     * @return a player-transaction spec
+     */
+    public static TaskSpec playerTransaction(long id, long target) {
+        return new TaskSpec(id, Kind.PLAYER_TRANSACTION, ItemStack.EMPTY, 0, null,
+            new Tensura(null, null, null, 0L, null, null, Economy.perPlayer(target)));
+    }
+
+    /**
+     * A native sales check: completes when the coin value of the player's
+     * completed sales reaches {@code target}. The unit is Lightman's
+     * Currency's own value scale.
+     *
+     * @param id the quest-file object id
+     * @param target the coin value threshold
+     * @return a sales-milestone spec
+     */
+    public static TaskSpec salesMilestone(long id, long target) {
+        return new TaskSpec(id, Kind.SALES_MILESTONE, ItemStack.EMPTY, 0, null,
+            new Tensura(null, null, null, 0L, null, null, Economy.perPlayer(target)));
+    }
+
+    /**
+     * A native partner check: completes when the player has completed trades
+     * with {@code target} distinct counterparties. Repeat trades with the
+     * same partner never inflate the count.
+     *
+     * @param id the quest-file object id
+     * @param target the number of distinct partners
+     * @return a trading-partner spec
+     */
+    public static TaskSpec tradingPartner(long id, long target) {
+        return new TaskSpec(id, Kind.TRADING_PARTNER, ItemStack.EMPTY, 0, null,
+            new Tensura(null, null, null, 0L, null, null, Economy.perPlayer(target)));
     }
 
     /**
@@ -283,7 +359,8 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
     private void create(Quest quest) {
         Task task;
         if (kind == Kind.ITEM) {
-            task = new ItemTask(id, quest).setStackAndCount(stack, count);
+            ItemStack required = requiredStack();
+            task = new ItemTask(id, quest).setStackAndCount(required, count);
         } else if (kind == Kind.RACE) {
             task = new RaceTask(id, quest);
         } else if (kind == Kind.SPIRIT) {
@@ -300,6 +377,12 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
             task = configuredJobMastery(quest);
         } else if (kind == Kind.MULTI_JOB_MASTERY) {
             task = configuredMultiJobMastery(quest);
+        } else if (kind == Kind.PLAYER_TRANSACTION) {
+            task = configuredPlayerTransaction(quest);
+        } else if (kind == Kind.SALES_MILESTONE) {
+            task = configuredSalesMilestone(quest);
+        } else if (kind == Kind.TRADING_PARTNER) {
+            task = configuredTradingPartner(quest);
         } else {
             task = new CheckmarkTask(id, quest);
         }
@@ -322,6 +405,43 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
         existence.readData(tag, quest.getQuestFile().holderLookup());
         existence.setValue(tensura.existenceValue());
         return existence;
+    }
+
+    private PlayerTransactionTask configuredPlayerTransaction(Quest quest) {
+        PlayerTransactionTask transaction = new PlayerTransactionTask(id, quest);
+        applyEconomy(transaction);
+        return transaction;
+    }
+
+    private SalesMilestoneTask configuredSalesMilestone(Quest quest) {
+        SalesMilestoneTask sales = new SalesMilestoneTask(id, quest);
+        applyEconomy(sales);
+        return sales;
+    }
+
+    private TradingPartnerTask configuredTradingPartner(Quest quest) {
+        TradingPartnerTask partner = new TradingPartnerTask(id, quest);
+        applyEconomy(partner);
+        return partner;
+    }
+
+    private void applyEconomy(EconomyTask task) {
+        task.setTarget(tensura.economy().target());
+        task.setAllowTeamTrades(tensura.economy().allowTeamTrades());
+    }
+
+    /**
+     * Resolves the required stack, deferring a mod item's registry lookup to
+     * creation time so building the spec never touches a registry the mod's
+     * absence could leave unusable.
+     *
+     * @return the required stack
+     */
+    private ItemStack requiredStack() {
+        if (itemId == null) {
+            return stack;
+        }
+        return new ItemStack(BuiltInRegistries.ITEM.get(itemId), count);
     }
 
     private JobParticipationTask configuredJobParticipation(Quest quest) {
@@ -355,11 +475,12 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, Tensura t
         if (kind != Kind.ITEM || !(existing instanceof ItemTask task)) {
             return false;
         }
+        ItemStack required = requiredStack();
         ItemStack current = task.getItemStack();
-        if (current.getItem() == stack.getItem() && current.getCount() == count) {
+        if (current.getItem() == required.getItem() && current.getCount() == count) {
             return false;
         }
-        task.setStackAndCount(stack, count);
+        task.setStackAndCount(required, count);
         return true;
     }
 }
