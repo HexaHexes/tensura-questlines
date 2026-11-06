@@ -25,6 +25,7 @@ public final class CommerceContent {
     private static final int FIRST_COIN_CHAPTER = 10;
     private static final int OPEN_FOR_BUSINESS_CHAPTER = 11;
     private static final int REPEAT_CUSTOMERS_CHAPTER = 12;
+    private static final int LEDGER_GROWS_CHAPTER = 13;
     private static final List<String> LIGHTMANS_CURRENCY = List.of("lightmanscurrency");
     private static final ResourceLocation BASIC_WALLET =
         ResourceLocation.parse("lightmanscurrency:wallet_leather");
@@ -130,6 +131,53 @@ public final class CommerceContent {
                 "Ten partners deep. Next: The Ledger Grows.",
                 List.of(TaskSpec.tradingPartner(ChapterIds.task(chapter, 2, 0), 10L)),
                 List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.EMERALD, 14)))
+        ));
+    }
+
+    /**
+     * Sub-questline 4, The Ledger Grows (HexaHexes/tensura-questlines#14):
+     * mid milestones and the income layer.
+     *
+     * <p>Two authoring checks this chapter owed, both answered against the
+     * pack rather than assumed:</p>
+     *
+     * <p><b>Bounty payouts are not observable.</b> The LC-bounty content is
+     * pure data (bounty pools and decrees), and neither it nor Bountiful
+     * references Lightman's Currency's classes at all - rewards arrive as
+     * items, coins included, and item grants are not trades. So the income
+     * beat counts sustained trade volume on our own types instead, and
+     * Bountiful remains the system of record for bounties: complement, never
+     * duplicated.</p>
+     *
+     * <p><b>Repeatables exist but stay unused here.</b> FTB Quests carries a
+     * real repeatable flag (the {@code can_repeat} and {@code repeat_cooldown}
+     * keys, authorable through {@code readData}); a repeatable economy quest
+     * would repeat its rewards, which is an inflation loop in a line about
+     * money, so the ladder shape stands deliberately.</p>
+     *
+     * <p>Milestone values are first-pass on Lightman's Currency's base coin,
+     * tuned in the game-testing round.</p>
+     *
+     * @return the Ledger Grows chapter spec
+     */
+    public static AuthoredChapter ledgerGrows() {
+        int chapter = LEDGER_GROWS_CHAPTER;
+        return AuthoredChapter.requiring(LIGHTMANS_CURRENCY, ChapterIds.chapter(chapter), "The Ledger Grows", List.of(
+            new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                "In The Black",
+                "The shop pays for itself, several times over.",
+                List.of(TaskSpec.salesMilestone(ChapterIds.task(chapter, 0, 0), 1000L)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.EMERALD, 12))),
+            new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                "Volume",
+                "Trade stops being occasional and starts being a ledger.",
+                List.of(TaskSpec.salesMilestone(ChapterIds.task(chapter, 1, 0), 10000L)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.DIAMOND, 2))),
+            new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                "Daily Trade",
+                "Twenty-five trades in: the routine itself is the income. Bounties stay the board's business; next comes Tycoon.",
+                List.of(TaskSpec.playerTransaction(ChapterIds.task(chapter, 2, 0), 25L)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.EMERALD, 16)))
         ));
     }
 }
