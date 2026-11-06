@@ -84,6 +84,16 @@ must match the `@GameTest` count.
   FTB Chunks claiming (claim ports, refunds, force-load takeover, marketplace
   access) and registers **no quest tasks or rewards**, so the Commerce line
   duplicates nothing.
+- **Bounty payouts are not questable**: the LC-bounty content and Bountiful
+  are data-only and reference no Lightman's Currency classes - rewards arrive
+  as item grants (coins included), which are not trades, so no economy task
+  can observe them. Bountiful stays the system of record; the Commerce line
+  counts its own trade facts instead.
+- **Repeatable quests exist but stay out of the money line**: FTB Quests
+  carries a real repeatable flag (its `can_repeat` / `repeat_cooldown` keys
+  are authorable through `readData`), but a repeatable quest repeats its
+  rewards - an inflation loop in a line about money. Milestone ladders are
+  the deliberate shape there.
 - Existence and awakening quests are authored through the same
   `readData` route (`existence`/`value` and `status` keys; the existence
   threshold also has the public `setValue`). Existence counters that track
