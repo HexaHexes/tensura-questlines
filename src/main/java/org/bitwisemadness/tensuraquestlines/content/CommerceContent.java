@@ -26,9 +26,11 @@ public final class CommerceContent {
     private static final int OPEN_FOR_BUSINESS_CHAPTER = 11;
     private static final int REPEAT_CUSTOMERS_CHAPTER = 12;
     private static final int LEDGER_GROWS_CHAPTER = 13;
+    private static final int TYCOON_CHAPTER = 14;
     private static final List<String> LIGHTMANS_CURRENCY = List.of("lightmanscurrency");
     private static final ResourceLocation BASIC_WALLET =
         ResourceLocation.parse("lightmanscurrency:wallet_leather");
+    private static final ResourceLocation GOLD_COIN = ResourceLocation.parse("lightmanscurrency:coin_gold");
 
     private CommerceContent() {
     }
@@ -178,6 +180,41 @@ public final class CommerceContent {
                 "Twenty-five trades in: the routine itself is the income. Bounties stay the board's business; next comes Tycoon.",
                 List.of(TaskSpec.playerTransaction(ChapterIds.task(chapter, 2, 0), 25L)),
                 List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.EMERALD, 16)))
+        ));
+    }
+
+    /**
+     * Sub-questline 5, Tycoon (HexaHexes/tensura-questlines#15): the capstone,
+     * and the two handoffs that close the Commerce line.
+     *
+     * <p>The capstone is the top sales tier. The two finale quests pay out in
+     * <b>coin</b> rather than vanilla valuables, because what they fund is
+     * priced in coin: the toll at the Depths' gate (bridge 3-to-4) and the
+     * gear the trials demand (bridge 3-to-5). Coins are items, so the reward
+     * resolves them from Lightman's Currency's registry when the reward is
+     * created - and the amounts are first-pass, since LC's coin values live in
+     * its own data-driven coin list.</p>
+     *
+     * @return the Tycoon chapter spec
+     */
+    public static AuthoredChapter tycoon() {
+        int chapter = TYCOON_CHAPTER;
+        return AuthoredChapter.requiring(LIGHTMANS_CURRENCY, ChapterIds.chapter(chapter), "Tycoon", List.of(
+            new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                "Tycoon",
+                "The ledger is no longer a record; it is a reputation.",
+                List.of(TaskSpec.salesMilestone(ChapterIds.task(chapter, 0, 0), 100000L)),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.DIAMOND, 4))),
+            new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                "The Purse Strings",
+                "Capital for the road down: the Depths' gate does not open for free.",
+                List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 1, 0))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), GOLD_COIN, 16))),
+            new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                "Founding the Trials",
+                "Capital for the proving above: the trials demand gear money buys.",
+                List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 2, 0))),
+                List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), GOLD_COIN, 16)))
         ));
     }
 }
