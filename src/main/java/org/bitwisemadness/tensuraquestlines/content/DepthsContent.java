@@ -27,6 +27,7 @@ public final class DepthsContent {
 
     private static final int THE_OPENING_CHAPTER = 15;
     private static final int RAIDERS_CHAPTER = 16;
+    private static final int GUARDIANS_CHAPTER = 17;
     private static final List<String> INFINITE_DUNGEON = List.of("infinite_dungeon_api");
     private static final List<String> DUNGEON = List.of("infinite_dungeon:dungeon");
     private static final ResourceLocation DUNGEON_DIMENSION =
@@ -141,6 +142,53 @@ public final class DepthsContent {
                     "Three credit at a deeper layer. Depth bosses are the rungs the Trials' ladder climbs.",
                     List.of(TaskSpec.minibossDefeat(ChapterIds.task(chapter, 2, 0), DUNGEON, 5, 3L)),
                     List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.DIAMOND, 3)))
+            ));
+    }
+
+    /**
+     * Sub-questline 3, Guardians (HexaHexes/tensura-questlines#18): layer
+     * completions, credited to the attributable completer. Three quests:
+     *
+     * <ol>
+     *   <li><b>The Guardian</b> - the first cleared layer.</li>
+     *   <li><b>Layer by Layer</b> - a count tier.</li>
+     *   <li><b>Keeper of Ways</b> - the higher tier that frames the finale
+     *       handoff (bridge 4-to-5).</li>
+     * </ol>
+     *
+     * <p>The type carries <b>no layer pin</b> by design: "clear a layer"
+     * counts any layer the configured dimensions complete in, and the
+     * milestone task is the one that pins a depth. So this chapter counts
+     * clears and leaves the depth story to Deep Claim. Credit goes to the
+     * attributable <em>completer</em> - the killer of the unlocking fall - not
+     * to whoever opened the gate; an absent completer credits nobody. That is
+     * the type's own rule, read exactly as-is.</p>
+     *
+     * <p>Targets are first-pass; layer clearing is guardian-gated
+     * ({@code laneSealed}, {@code boss.respawnCooldownSeconds}) and the
+     * descent is unbounded, so they are confirmed in the game-testing round.</p>
+     *
+     * @return the Guardians chapter spec
+     */
+    public static AuthoredChapter guardians() {
+        int chapter = GUARDIANS_CHAPTER;
+        return AuthoredChapter.requiring(INFINITE_DUNGEON, ChapterIds.chapter(chapter),
+            "Guardians", List.of(
+                new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                    "The Guardian",
+                    "One layer's guardian falls for the first time. The credit is the killer's, not the gate-opener's.",
+                    List.of(TaskSpec.layerCompletion(ChapterIds.task(chapter, 0, 0), DUNGEON, 1L)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.EMERALD, 10))),
+                new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                    "Layer by Layer",
+                    "Three layers answered. The descent is a habit now.",
+                    List.of(TaskSpec.layerCompletion(ChapterIds.task(chapter, 1, 0), DUNGEON, 3L)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.DIAMOND, 2))),
+                new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                    "Keeper of Ways",
+                    "Five layers kept. Beyond this the Trials hold the gate: the deep road opens to those proven above.",
+                    List.of(TaskSpec.layerCompletion(ChapterIds.task(chapter, 2, 0), DUNGEON, 5L)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.DIAMOND, 4)))
             ));
     }
 }
