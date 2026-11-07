@@ -27,7 +27,8 @@ public final class QuestlineContent {
         CommerceContent.openForBusiness(),
         CommerceContent.repeatCustomers(),
         CommerceContent.ledgerGrows(),
-        CommerceContent.tycoon()
+        CommerceContent.tycoon(),
+        DepthsContent.theOpening()
     );
 
     private QuestlineContent() {

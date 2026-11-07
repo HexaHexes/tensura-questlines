@@ -26,10 +26,12 @@ issues are detailed.
   race/spirit/ability/awakening/existence types the Reincarnation line reads),
   Tensura Skill Books (`tensura_skill_books` `[2.2.3,)` - the study-book item
   the First Skills chapter requires).
-- Optional: none declared yet. Individual sub-questlines may need optional
-  content systems (Sympathetic Jobs, Infinite Dungeon suite, Lightman's
-  Currency) - add those dependencies together with the line that needs them,
-  gated the way AGENTS requires.
+- Optional: the content systems individual lines read, each gated through
+  `AuthoredChapter.requiring(...)` so its line ships dormant where the system
+  is absent - Sympathetic Jobs (`sympatheticjobs`, Professions), Lightman's
+  Currency (`lightmanscurrency`, Commerce) and the Infinite Dungeon API
+  (`infinite_dungeon_api`, Depths). None is declared in `neoforge.mods.toml`:
+  delivery handles absence, so the mod never forces the pack to carry one.
 
 **Test:** `./gradlew runGameTestServer` — `TensuraQuestlinesGameTests` and
 `ChapterDeliveryGameTests` (6 tests). `expectedTests = 6` in `build.gradle`
@@ -104,9 +106,22 @@ must match the `@GameTest` count.
 - A chapter that reads an **optional content system** declares it through
   `AuthoredChapter.requiring(...)`: delivery skips the chapter when a listed
   mod is absent (dormant content) and isolates failures per chapter, so one
-  broken family can never take the rest of the questlines down. Professions
-  uses `sympatheticjobs`; the same shape is ready for Commerce
-  (`lightmanscurrency`), the Depths and Trials.
+  broken family can never take the rest of the questlines down. Live uses:
+  Professions `sympatheticjobs`, Commerce `lightmanscurrency`, Depths
+  `infinite_dungeon_api` (the same id `tensura_quests` probes before it
+  registers the dungeon task types). Trials will follow the same shape.
+- The Depths line reads the four Infinite Dungeon task types exactly as
+  registered and touches no dungeon gameplay. Its entrance beat is FTB's own
+  `DimensionTask` on `infinite_dungeon:dungeon` - an id taken from the suite's
+  `dimension_profile` data and validated against the pack, never invented in
+  code. Depth milestones are at-least semantics, so they also complete for a
+  player who overshoots the layer.
+- **Crossover bridges are narrative interlocks, not hard quest links.** A
+  counterpart chapter often does not exist when one side ships, and FTB drops
+  a dependency on a missing quest on load - a silent no-op that gates
+  nothing. Each side carries matching text (the registry lives in the majors'
+  issues #29-#33) and the hard link is added only once both quests exist. The
+  Depths' Deep Claim names the Trials' Final Gate's "Proven" beat this way.
 - Slot unlocks work the way T:SJ reads them: `effectiveSlotLimit(player)` is
   the player's override when one is set, and `MAX_JOBS_GLOBAL` (the pack's
   default, 3) otherwise. Our unlock reward raises the override through SJ's
