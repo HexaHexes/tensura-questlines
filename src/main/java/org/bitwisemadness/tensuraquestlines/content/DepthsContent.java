@@ -26,6 +26,7 @@ import org.bitwisemadness.tensuraquestlines.delivery.TaskSpec;
 public final class DepthsContent {
 
     private static final int THE_OPENING_CHAPTER = 15;
+    private static final int RAIDERS_CHAPTER = 16;
     private static final List<String> INFINITE_DUNGEON = List.of("infinite_dungeon_api");
     private static final List<String> DUNGEON = List.of("infinite_dungeon:dungeon");
     private static final ResourceLocation DUNGEON_DIMENSION =
@@ -93,6 +94,53 @@ public final class DepthsContent {
                     "Reserved for the Proven - the Final Gate's champion. The Depths answer only to those the trials have finished.",
                     List.of(TaskSpec.dungeonMilestone(ChapterIds.task(chapter, 4, 0), DUNGEON, 30)),
                     List.of(RewardSpec.item(ChapterIds.reward(chapter, 4, 0), Items.DIAMOND, 4)))
+            ));
+    }
+
+    /**
+     * Sub-questline 2, Raiders (HexaHexes/tensura-questlines#17): floor-miniboss
+     * raids with credited kills. Three quests:
+     *
+     * <ol>
+     *   <li><b>Something Big</b> - framing; a floor-miniboss has no native
+     *       "approaching" signal, so this beat is a checkmark.</li>
+     *   <li><b>Raider</b> - the first credited miniboss defeat, at the
+     *       suite's own {@code miniboss.startLayer} (3).</li>
+     *   <li><b>Deep Raider</b> - a deeper count tier, and the 4-to-5 handoff:
+     *       depth bosses gate the Trials' boss spine, so the text points there.</li>
+     * </ol>
+     *
+     * <p>The miniboss task's layer matcher is <em>exact</em> (the type's rule):
+     * only kills at the configured layer count, and credited kills accumulate
+     * across descents, so the count tier is reachable even where a single
+     * layer fields few minibosses.</p>
+     *
+     * <p>Thresholds are grounded in the suite's shipped cadence
+     * ({@code miniboss.startLayer = 3}, {@code miniboss.everyNFloors = 3}, with
+     * {@code floorsPerLayer} in 5-10, so a layer fields one to three minibosses)
+     * and are first-pass numbers to confirm in the game-testing round.</p>
+     *
+     * @return the Raiders chapter spec
+     */
+    public static AuthoredChapter raiders() {
+        int chapter = RAIDERS_CHAPTER;
+        return AuthoredChapter.requiring(INFINITE_DUNGEON, ChapterIds.chapter(chapter),
+            "Raiders", List.of(
+                new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                    "Something Big",
+                    "Something on this floor fights back. It has a name and a bar.",
+                    List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 0, 0))),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.EMERALD, 8))),
+                new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                    "Raider",
+                    "Put one floor-miniboss down. The suite credits the kill to whoever struck it.",
+                    List.of(TaskSpec.minibossDefeat(ChapterIds.task(chapter, 1, 0), DUNGEON, 3)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.DIAMOND, 1))),
+                new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                    "Deep Raider",
+                    "Three credit at a deeper layer. Depth bosses are the rungs the Trials' ladder climbs.",
+                    List.of(TaskSpec.minibossDefeat(ChapterIds.task(chapter, 2, 0), DUNGEON, 5, 3L)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.DIAMOND, 3)))
             ));
     }
 }
