@@ -29,7 +29,8 @@ public final class QuestlineContent {
         CommerceContent.ledgerGrows(),
         CommerceContent.tycoon(),
         DepthsContent.theOpening(),
-        DepthsContent.raiders()
+        DepthsContent.raiders(),
+        DepthsContent.guardians()
     );
 
     private QuestlineContent() {
