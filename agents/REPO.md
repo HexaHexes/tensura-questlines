@@ -35,7 +35,9 @@ issues are detailed.
 
 **Test:** `./gradlew runGameTestServer` — `TensuraQuestlinesGameTests` and
 `ChapterDeliveryGameTests` (6 tests). `expectedTests = 6` in `build.gradle`
-must match the `@GameTest` count.
+must match the `@GameTest` count. The harness stages only the systems the
+repo's own runs need (`gametestMods`); content gated on any other pack mod is
+**dormant here by design** and verified in-pack, not in CI.
 
 **Remote:** `github.com/HexaHexes/tensura-questlines` (public, default branch
 `main`).
@@ -110,6 +112,15 @@ must match the `@GameTest` count.
   Professions `sympatheticjobs`, Commerce `lightmanscurrency`, Depths
   `infinite_dungeon_api` (the same id `tensura_quests` probes before it
   registers the dungeon task types). Trials will follow the same shape.
+- **The GameTest closure is deliberately partial, and the tests respect that.**
+  `chapters_gate_on_their_optional_mods` checks the gating contract (a chapter
+  is available exactly when its mods are loaded) and that the core systems
+  (`sympatheticjobs`, `lightmanscurrency`, `infinite_dungeon_api`) stay staged;
+  `delivery_builds_every_available_chapter` skips chapters whose mods are not
+  staged. So a chapter gated on a pack mod outside `gametestMods` is dormant in
+  CI - by design, not a failure - and its verification is the in-pack smoke its
+  sub-issue requires. Do not re-tighten these into "every declared mod must be
+  staged": that would force the whole pack into the closure.
 - The Depths line reads the four Infinite Dungeon task types exactly as
   registered and touches no dungeon gameplay. Its entrance beat is FTB's own
   `DimensionTask` on `infinite_dungeon:dungeon` - an id taken from the suite's
