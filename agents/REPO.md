@@ -116,6 +116,13 @@ must match the `@GameTest` count.
   `dimension_profile` data and validated against the pack, never invented in
   code. Depth milestones are at-least semantics, so they also complete for a
   player who overshoots the layer.
+- The Raiders thresholds are grounded in the suite's own cadence
+  (`config/infinite_dungeon-common.toml`): `miniboss.startLayer = 3` is the
+  first layer whose floors may field a miniboss, `miniboss.everyNFloors = 3`
+  spaces them, and `floorsPerLayer` runs 5-10, so a layer fields one to three.
+  The miniboss task matches the configured layer **exactly** (deeper kills do
+  not count) and credited kills accumulate across descents, so a count tier is
+  reachable by re-running a layer.
 - **Crossover bridges are narrative interlocks, not hard quest links.** A
   counterpart chapter often does not exist when one side ships, and FTB drops
   a dependency on a missing quest on load - a silent no-op that gates

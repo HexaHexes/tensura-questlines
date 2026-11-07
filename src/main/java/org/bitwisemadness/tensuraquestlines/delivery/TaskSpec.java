@@ -328,11 +328,12 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, ResourceL
 
         /**
          * @param dimensions the dungeon dimension ids
-         * @param requiredLayer the layer the defeat must happen in or deeper
+         * @param requiredLayer the layer whose minibosses count (exact match)
+         * @param target how many credited defeats the task requires
          * @return a miniboss payload
          */
-        public static Dungeon raid(List<String> dimensions, int requiredLayer) {
-            return new Dungeon(List.copyOf(dimensions), 1L, 0, 0, requiredLayer);
+        public static Dungeon raid(List<String> dimensions, int requiredLayer, long target) {
+            return new Dungeon(List.copyOf(dimensions), target, 0, 0, requiredLayer);
         }
 
         /**
@@ -580,8 +581,24 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, ResourceL
      * @return a miniboss-defeat spec
      */
     public static TaskSpec minibossDefeat(long id, List<String> dimensions, int requiredLayer) {
+        return minibossDefeat(id, dimensions, requiredLayer, 1L);
+    }
+
+    /**
+     * A native raid-count check: completes when the player is credited with
+     * {@code target} miniboss defeats at the exact {@code requiredLayer}. The
+     * layer matcher is exact (the type's own rule), so deeper kills do not
+     * count; credited kills accumulate across descents.
+     *
+     * @param id the quest-file object id
+     * @param dimensions the dungeon dimension ids
+     * @param requiredLayer the layer whose minibosses count
+     * @param target how many credited defeats the task requires
+     * @return a miniboss-defeat spec
+     */
+    public static TaskSpec minibossDefeat(long id, List<String> dimensions, int requiredLayer, long target) {
         return new TaskSpec(id, Kind.MINIBOSS_DEFEAT, ItemStack.EMPTY, 0, null,
-            new Tensura(null, null, null, 0L, null, null, null, Dungeon.raid(dimensions, requiredLayer)));
+            new Tensura(null, null, null, 0L, null, null, null, Dungeon.raid(dimensions, requiredLayer, target)));
     }
 
     /**
@@ -708,6 +725,7 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, ResourceL
         MinibossDefeatTask miniboss = new MinibossDefeatTask(id, quest);
         applyDungeon(miniboss);
         miniboss.setRequiredLayer(tensura.dungeon().requiredLayer());
+        miniboss.setTarget(tensura.dungeon().target());
         return miniboss;
     }
 
