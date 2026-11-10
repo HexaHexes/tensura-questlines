@@ -27,8 +27,10 @@ public final class TrialsContent {
 
     private static final int SPELLCRAFT_CHAPTER = 18;
     private static final int WYRMHUNTER_CHAPTER = 19;
+    private static final int ENCHANTERS_LADDER_CHAPTER = 20;
     private static final List<String> SPELLCRAFT_MODS = List.of("irons_spellbooks", "mysticism");
     private static final List<String> WYRMHUNTER_MODS = List.of("iceandfire", "questkilltask");
+    private static final List<String> ENCHANTER_MODS = List.of("apothic_enchanting", "apotheosis");
     private static final ResourceLocation SPELL_BOOK_EQUIP =
         ResourceLocation.parse("irons_spellbooks:irons_spellbooks/spell_book_equip");
     private static final ResourceLocation SPELL_BOOK_IRON =
@@ -47,6 +49,11 @@ public final class TrialsContent {
     private static final ResourceLocation ICE_DRAGON = ResourceLocation.parse("iceandfire:ice_dragon");
     private static final ResourceLocation LIGHTNING_DRAGON =
         ResourceLocation.parse("iceandfire:lightning_dragon");
+    private static final ResourceLocation ENCHANTER_TABLE =
+        ResourceLocation.parse("apothic_enchanting:enchanter");
+    private static final ResourceLocation AFFIX_HAVEN = ResourceLocation.parse("apotheosis:progression/haven");
+    private static final ResourceLocation ENCH_ENCHANT_60 = ResourceLocation.parse("apothic_enchanting:60ench");
+    private static final ResourceLocation ENCH_ENCHANT_100 = ResourceLocation.parse("apothic_enchanting:100ench");
 
     private TrialsContent() {
     }
@@ -162,6 +169,58 @@ public final class TrialsContent {
                         TaskSpec.kill(ChapterIds.task(chapter, 3, 0), FIRE_DRAGON, 1),
                         TaskSpec.kill(ChapterIds.task(chapter, 3, 1), ICE_DRAGON, 1),
                         TaskSpec.kill(ChapterIds.task(chapter, 3, 2), LIGHTNING_DRAGON, 1)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 3, 0), Items.DIAMOND, 4)))
+            ));
+    }
+
+    /**
+     * Sub-questline 3, Enchanter's Ladder (HexaHexes/tensura-questlines#22):
+     * the Apotheosis / ApothicEnchanting tiers.
+     *
+     * <p><b>Observable-signal audit</b> (the sub-issue's acceptance box):</p>
+     *
+     * <ul>
+     *   <li>ApothicEnchanting ships a real advancement ladder; the beats read
+     *       {@code apothic_enchanting:enchanter} ("obtain an enchanting table")
+     *       and its level nodes {@code 60ench} and {@code 100ench}, all keyed
+     *       to the mod's own {@code apothic_enchanting:enchanted} trigger.</li>
+     *   <li>The affix step reads Apotheosis' live World-Tier node,
+     *       {@code apotheosis:progression/haven} (fires on picking up an affix
+     *       item).</li>
+     *   <li><b>Finding:</b> Apotheosis' older per-affix advancements (gem,
+     *       socket, and friends) ship under {@code old_data/}, <em>not</em>
+     *       {@code data/}, so they are not loaded and cannot be read - the
+     *       affix beat uses the live node instead.</li>
+     * </ul>
+     *
+     * <p>Rewards stay vanilla; the ladder is the point and this keeps the
+     * item surface safe.</p>
+     *
+     * @return the Enchanter's Ladder chapter spec
+     */
+    public static AuthoredChapter enchanter() {
+        int chapter = ENCHANTERS_LADDER_CHAPTER;
+        return AuthoredChapter.requiring(ENCHANTER_MODS, ChapterIds.chapter(chapter),
+            "Enchanter's Ladder", List.of(
+                new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                    "The Table",
+                    "Obtain an enchanting table and start unveiling the mystery.",
+                    List.of(TaskSpec.advancement(ChapterIds.task(chapter, 0, 0), ENCHANTER_TABLE)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.EMERALD, 8))),
+                new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                    "Affix Apprentice",
+                    "Pick up an affix item - the first taste of Apotheosis gear.",
+                    List.of(TaskSpec.advancement(ChapterIds.task(chapter, 1, 0), AFFIX_HAVEN)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.DIAMOND, 1))),
+                new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                    "Higher Grades",
+                    "Enchant an item at level 60 - hell and sea shelved into the table.",
+                    List.of(TaskSpec.advancement(ChapterIds.task(chapter, 2, 0), ENCH_ENCHANT_60)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.DIAMOND, 2))),
+                new QuestSpec(ChapterIds.quest(chapter, 3), 4.5D, 0.0D,
+                    "Master Enchanter",
+                    "Level 100. Commerce funds the shelves; the ladder is yours alone.",
+                    List.of(TaskSpec.advancement(ChapterIds.task(chapter, 3, 0), ENCH_ENCHANT_100)),
                     List.of(RewardSpec.item(ChapterIds.reward(chapter, 3, 0), Items.DIAMOND, 4)))
             ));
     }
