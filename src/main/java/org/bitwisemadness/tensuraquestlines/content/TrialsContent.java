@@ -26,7 +26,9 @@ import org.bitwisemadness.tensuraquestlines.delivery.TaskSpec;
 public final class TrialsContent {
 
     private static final int SPELLCRAFT_CHAPTER = 18;
+    private static final int WYRMHUNTER_CHAPTER = 19;
     private static final List<String> SPELLCRAFT_MODS = List.of("irons_spellbooks", "mysticism");
+    private static final List<String> WYRMHUNTER_MODS = List.of("iceandfire", "questkilltask");
     private static final ResourceLocation SPELL_BOOK_EQUIP =
         ResourceLocation.parse("irons_spellbooks:irons_spellbooks/spell_book_equip");
     private static final ResourceLocation SPELL_BOOK_IRON =
@@ -37,6 +39,14 @@ public final class TrialsContent {
         ResourceLocation.parse("irons_spellbooks:irons_spellbooks/ink_legendary");
     private static final ResourceLocation MYSTIC_LIGHTNING_STRIKES =
         ResourceLocation.parse("mysticism:lightning_strikes");
+    private static final ResourceLocation DRAGON_EGG =
+        ResourceLocation.parse("iceandfire:iceandfire/dragon_egg");
+    private static final ResourceLocation DRAGON_ARMOR =
+        ResourceLocation.parse("iceandfire:iceandfire/dragonarmor");
+    private static final ResourceLocation FIRE_DRAGON = ResourceLocation.parse("iceandfire:fire_dragon");
+    private static final ResourceLocation ICE_DRAGON = ResourceLocation.parse("iceandfire:ice_dragon");
+    private static final ResourceLocation LIGHTNING_DRAGON =
+        ResourceLocation.parse("iceandfire:lightning_dragon");
 
     private TrialsContent() {
     }
@@ -98,6 +108,61 @@ public final class TrialsContent {
                     "Legendary ink, the mark of a finished mage. Commerce's coin bought the reagents; the trials take it from here.",
                     List.of(TaskSpec.advancement(ChapterIds.task(chapter, 4, 0), INK_LEGENDARY)),
                     List.of(RewardSpec.item(ChapterIds.reward(chapter, 4, 0), Items.DIAMOND, 3)))
+            ));
+    }
+
+    /**
+     * Sub-questline 2, Wyrmhunter (HexaHexes/tensura-questlines#21): Ice and
+     * Fire CE progression, from a stolen egg to all three dragons down.
+     *
+     * <p><b>Observable-signal audit</b> (the sub-issue's acceptance box):</p>
+     *
+     * <ul>
+     *   <li>Entity ids are validated against the pack's Ice and Fire CE
+     *       registration: its lang ships {@code entity.iceandfire.fire_dragon},
+     *       {@code ice_dragon} and {@code lightning_dragon}.</li>
+     *   <li>Advancement ids are real nodes in {@code data/iceandfire/advancement/}:
+     *       {@code dragon_egg} ("Mother of Dragons") and {@code dragonarmor}.</li>
+     *   <li>Kills read <b>FTB's own kill task</b>, never rebuilt. The pack's
+     *       {@code Quest-Kill-Task} mod has no task class of its own - it
+     *       enhances FTB's kill handling with attribution (its mixins and
+     *       {@code DamageTracker}) - so the beats use the native type and the
+     *       attribution improvement comes with the pack. The chapter gates on
+     *       both mods.</li>
+     *   <li><b>Constraint honoured:</b> {@code iceandfirexbettercombat} is
+     *       disabled, so nothing here is combo-flavoured - only holdings and
+     *       kills.</li>
+     * </ul>
+     *
+     * @return the Wyrmhunter chapter spec
+     */
+    public static AuthoredChapter wyrmhunter() {
+        int chapter = WYRMHUNTER_CHAPTER;
+        return AuthoredChapter.requiring(WYRMHUNTER_MODS, ChapterIds.chapter(chapter),
+            "Wyrmhunter", List.of(
+                new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                    "An Egg",
+                    "Any dragon egg will do. Every wyrmhunt begins with one stolen from a nest.",
+                    List.of(TaskSpec.advancement(ChapterIds.task(chapter, 0, 0), DRAGON_EGG)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.EMERALD, 8))),
+                new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                    "First Wyrm",
+                    "Bring down a fire dragon - the first rung of the hunt.",
+                    List.of(TaskSpec.kill(ChapterIds.task(chapter, 1, 0), FIRE_DRAGON, 1)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.DIAMOND, 1))),
+                new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                    "Hoard Curator",
+                    "Turn dragon scales into armor. A hunter's hoard is what they wear.",
+                    List.of(TaskSpec.advancement(ChapterIds.task(chapter, 2, 0), DRAGON_ARMOR)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.DIAMOND, 2))),
+                new QuestSpec(ChapterIds.quest(chapter, 3), 4.5D, 0.0D,
+                    "Wyrmhunter",
+                    "Fire, ice and lightning, all brought low. This is the pacing the deeper trials will demand.",
+                    List.of(
+                        TaskSpec.kill(ChapterIds.task(chapter, 3, 0), FIRE_DRAGON, 1),
+                        TaskSpec.kill(ChapterIds.task(chapter, 3, 1), ICE_DRAGON, 1),
+                        TaskSpec.kill(ChapterIds.task(chapter, 3, 2), LIGHTNING_DRAGON, 1)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 3, 0), Items.DIAMOND, 4)))
             ));
     }
 }
