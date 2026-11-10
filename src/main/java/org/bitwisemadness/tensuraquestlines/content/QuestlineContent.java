@@ -30,7 +30,8 @@ public final class QuestlineContent {
         CommerceContent.tycoon(),
         DepthsContent.theOpening(),
         DepthsContent.raiders(),
-        DepthsContent.guardians()
+        DepthsContent.guardians(),
+        TrialsContent.spellcraft()
     );
 
     private QuestlineContent() {
