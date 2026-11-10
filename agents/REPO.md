@@ -134,6 +134,15 @@ repo's own runs need (`gametestMods`); content gated on any other pack mod is
   The miniboss task matches the configured layer **exactly** (deeper kills do
   not count) and credited kills accumulate across descents, so a count tier is
   reachable by re-running a layer.
+- The Trials line reads **vanilla signals only** - advancements, statistics,
+  item holdings and kills - never a mod's own API. Audit findings so far:
+  Iron's Spells ships an advancement tree (the beats read its nodes by id),
+  Mysticism registers the custom stat `mysticism:lightning_strikes`, and
+  **`unraveling_spells` is not installed in the pack at all** (a full mod-list
+  scan finds no such mod), so that draft branch was re-expressed as the paths
+  that do exist. FTB's built-in advancement and stat tasks are authored through
+  their own `readData` keys (`advancement`/`criterion`, `stat`/`value`), the
+  same route the native fieldless types take.
 - **Crossover bridges are narrative interlocks, not hard quest links.** A
   counterpart chapter often does not exist when one side ships, and FTB drops
   a dependency on a missing quest on load - a silent no-op that gates

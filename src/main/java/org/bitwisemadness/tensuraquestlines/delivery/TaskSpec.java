@@ -2,9 +2,11 @@ package org.bitwisemadness.tensuraquestlines.delivery;
 
 import dev.ftb.mods.ftbquests.quest.BaseQuestFile;
 import dev.ftb.mods.ftbquests.quest.Quest;
+import dev.ftb.mods.ftbquests.quest.task.AdvancementTask;
 import dev.ftb.mods.ftbquests.quest.task.CheckmarkTask;
 import dev.ftb.mods.ftbquests.quest.task.DimensionTask;
 import dev.ftb.mods.ftbquests.quest.task.ItemTask;
+import dev.ftb.mods.ftbquests.quest.task.StatTask;
 import dev.ftb.mods.ftbquests.quest.task.Task;
 import io.github.manasmods.tensura_ftb.tasks.AbilityTask;
 import io.github.manasmods.tensura_ftb.tasks.AwakeningTask;
@@ -57,12 +59,12 @@ import org.bitwisemadness.tensuraquests.tasks.TradingPartnerTask;
  *               it belongs to another mod; resolved when the task is created,
  *               never when the spec is built, so a chapter whose mod is absent
  *               cannot break class loading
- * @param dimensionId the dimension the player must be in, for
- *                    {@link Kind#DIMENSION}
+ * @param builtin the FTB built-in payload (dimension, advancement, statistic),
+ *                or null for kinds that use one of the other payloads
  * @param tensura the native-type payload, or null for the vanilla kinds
  */
 public record TaskSpec(long id, Kind kind, ItemStack stack, int count, ResourceLocation itemId,
-                       ResourceLocation dimensionId, Tensura tensura) {
+                       Builtin builtin, Tensura tensura) {
 
     /**
      * A spec whose only payload is its kind and id, or a vanilla-side payload.
@@ -95,7 +97,21 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, ResourceL
             @Override
             Task create(TaskSpec spec, Quest quest) {
                 return new DimensionTask(spec.id(), quest)
-                    .withDimension(ResourceKey.create(Registries.DIMENSION, spec.dimensionId()));
+                    .withDimension(ResourceKey.create(Registries.DIMENSION, spec.builtin().dimension()));
+            }
+        },
+        /** Built-in check: completes when the player earns the named advancement. */
+        ADVANCEMENT {
+            @Override
+            Task create(TaskSpec spec, Quest quest) {
+                return spec.configuredAdvancement(quest);
+            }
+        },
+        /** Built-in threshold on a statistic - vanilla or a mod's custom stat. */
+        STAT {
+            @Override
+            Task create(TaskSpec spec, Quest quest) {
+                return spec.configuredStat(quest);
             }
         },
         /** Completes when the player holds {@code count} of the item. */
@@ -217,6 +233,40 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, ResourceL
          * @return the constructed, not-yet-created task
          */
         abstract Task create(TaskSpec spec, Quest quest);
+    }
+
+    /**
+     * The FTB built-in payload: the registry name a built-in task reads.
+     *
+     * <p>FTB's built-ins keep their target in private fields with no setters,
+     * so they are authored the way FTB persists them - through the task's own
+     * {@code readData} keys. Every id here is pack data, validated against the
+     * live registry rather than invented.</p>
+     *
+     * @param dimension the dimension id, for {@link Kind#DIMENSION}
+     * @param advancement the advancement id, for {@link Kind#ADVANCEMENT}
+     * @param stat the statistic id, for {@link Kind#STAT} - a vanilla
+     *             statistic or a mod's own custom stat
+     * @param criterion the advancement criterion, or blank for the whole
+     *                  advancement, for {@link Kind#ADVANCEMENT}
+     */
+    public record Builtin(ResourceLocation dimension, ResourceLocation advancement,
+                          ResourceLocation stat, String criterion) {
+
+        /** @param id the dimension id @return a dimension payload */
+        public static Builtin dimension(ResourceLocation id) {
+            return new Builtin(id, null, null, null);
+        }
+
+        /** @param id the advancement id @return a whole-advancement payload */
+        public static Builtin advancement(ResourceLocation id) {
+            return new Builtin(null, id, null, "");
+        }
+
+        /** @param id the statistic id @return a statistic payload */
+        public static Builtin stat(ResourceLocation id) {
+            return new Builtin(null, null, id, null);
+        }
     }
 
     /**
@@ -390,7 +440,36 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, ResourceL
      * @return a dimension-check spec
      */
     public static TaskSpec dimension(long id, ResourceLocation dimensionId) {
-        return new TaskSpec(id, Kind.DIMENSION, ItemStack.EMPTY, 0, null, dimensionId, null);
+        return new TaskSpec(id, Kind.DIMENSION, ItemStack.EMPTY, 0, null, Builtin.dimension(dimensionId), null);
+    }
+
+    /**
+     * An advancement check: completes when the player earns the named
+     * advancement. The id is pack data - the advancement must exist in the
+     * pack (or its owning mod) or the task can never complete.
+     *
+     * @param id the quest-file object id
+     * @param advancementId the advancement's registry name
+     * @return an advancement-check spec
+     */
+    public static TaskSpec advancement(long id, ResourceLocation advancementId) {
+        return new TaskSpec(id, Kind.ADVANCEMENT, ItemStack.EMPTY, 0, null,
+            Builtin.advancement(advancementId), null);
+    }
+
+    /**
+     * A statistic threshold: completes when the named statistic reaches
+     * {@code value}. The stat may be a vanilla one or a mod's own custom stat;
+     * either way the id is pack data, and a custom stat that is not registered
+     * leaves the task uncompletable.
+     *
+     * @param id the quest-file object id
+     * @param statId the statistic's registry name
+     * @param value the threshold
+     * @return a statistic spec
+     */
+    public static TaskSpec statistic(long id, ResourceLocation statId, int value) {
+        return new TaskSpec(id, Kind.STAT, ItemStack.EMPTY, value, null, Builtin.stat(statId), null);
     }
 
     /**
@@ -662,6 +741,24 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, ResourceL
         tag.putString("status", tensura.awakening().name());
         awakening.readData(tag, quest.getQuestFile().holderLookup());
         return awakening;
+    }
+
+    private AdvancementTask configuredAdvancement(Quest quest) {
+        AdvancementTask advancement = new AdvancementTask(id, quest);
+        CompoundTag tag = new CompoundTag();
+        tag.putString("advancement", builtin.advancement().toString());
+        tag.putString("criterion", builtin.criterion());
+        advancement.readData(tag, quest.getQuestFile().holderLookup());
+        return advancement;
+    }
+
+    private StatTask configuredStat(Quest quest) {
+        StatTask stat = new StatTask(id, quest);
+        CompoundTag tag = new CompoundTag();
+        tag.putString("stat", builtin.stat().toString());
+        tag.putInt("value", count);
+        stat.readData(tag, quest.getQuestFile().holderLookup());
+        return stat;
     }
 
     private JobParticipationTask configuredJobParticipation(Quest quest) {
