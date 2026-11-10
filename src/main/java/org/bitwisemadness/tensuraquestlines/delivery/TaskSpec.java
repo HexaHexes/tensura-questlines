@@ -6,6 +6,7 @@ import dev.ftb.mods.ftbquests.quest.task.AdvancementTask;
 import dev.ftb.mods.ftbquests.quest.task.CheckmarkTask;
 import dev.ftb.mods.ftbquests.quest.task.DimensionTask;
 import dev.ftb.mods.ftbquests.quest.task.ItemTask;
+import dev.ftb.mods.ftbquests.quest.task.KillTask;
 import dev.ftb.mods.ftbquests.quest.task.StatTask;
 import dev.ftb.mods.ftbquests.quest.task.Task;
 import io.github.manasmods.tensura_ftb.tasks.AbilityTask;
@@ -112,6 +113,13 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, ResourceL
             @Override
             Task create(TaskSpec spec, Quest quest) {
                 return spec.configuredStat(quest);
+            }
+        },
+        /** Built-in kill count on one entity type. */
+        KILL {
+            @Override
+            Task create(TaskSpec spec, Quest quest) {
+                return spec.configuredKill(quest);
             }
         },
         /** Completes when the player holds {@code count} of the item. */
@@ -247,25 +255,31 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, ResourceL
      * @param advancement the advancement id, for {@link Kind#ADVANCEMENT}
      * @param stat the statistic id, for {@link Kind#STAT} - a vanilla
      *             statistic or a mod's own custom stat
+     * @param entity the entity type id, for {@link Kind#KILL}
      * @param criterion the advancement criterion, or blank for the whole
      *                  advancement, for {@link Kind#ADVANCEMENT}
      */
     public record Builtin(ResourceLocation dimension, ResourceLocation advancement,
-                          ResourceLocation stat, String criterion) {
+                          ResourceLocation stat, ResourceLocation entity, String criterion) {
 
         /** @param id the dimension id @return a dimension payload */
         public static Builtin dimension(ResourceLocation id) {
-            return new Builtin(id, null, null, null);
+            return new Builtin(id, null, null, null, null);
         }
 
         /** @param id the advancement id @return a whole-advancement payload */
         public static Builtin advancement(ResourceLocation id) {
-            return new Builtin(null, id, null, "");
+            return new Builtin(null, id, null, null, "");
         }
 
         /** @param id the statistic id @return a statistic payload */
         public static Builtin stat(ResourceLocation id) {
-            return new Builtin(null, null, id, null);
+            return new Builtin(null, null, id, null, null);
+        }
+
+        /** @param id the entity type id @return a kill payload */
+        public static Builtin kill(ResourceLocation id) {
+            return new Builtin(null, null, null, id, null);
         }
     }
 
@@ -470,6 +484,21 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, ResourceL
      */
     public static TaskSpec statistic(long id, ResourceLocation statId, int value) {
         return new TaskSpec(id, Kind.STAT, ItemStack.EMPTY, value, null, Builtin.stat(statId), null);
+    }
+
+    /**
+     * A kill count on one entity type, read by FTB's own kill task - the
+     * native kill infra, never rebuilt. The entity id is pack data, validated
+     * against the live registry; attribution of indirect kills is the kill
+     * mod's job, not this layer's.
+     *
+     * @param id the quest-file object id
+     * @param entityId the entity type's registry name
+     * @param count how many kills the task requires
+     * @return a kill-count spec
+     */
+    public static TaskSpec kill(long id, ResourceLocation entityId, int count) {
+        return new TaskSpec(id, Kind.KILL, ItemStack.EMPTY, count, null, Builtin.kill(entityId), null);
     }
 
     /**
@@ -759,6 +788,15 @@ public record TaskSpec(long id, Kind kind, ItemStack stack, int count, ResourceL
         tag.putInt("value", count);
         stat.readData(tag, quest.getQuestFile().holderLookup());
         return stat;
+    }
+
+    private KillTask configuredKill(Quest quest) {
+        KillTask kill = new KillTask(id, quest);
+        CompoundTag tag = new CompoundTag();
+        tag.putString("entity", builtin.entity().toString());
+        tag.putLong("value", count);
+        kill.readData(tag, quest.getQuestFile().holderLookup());
+        return kill;
     }
 
     private JobParticipationTask configuredJobParticipation(Quest quest) {

@@ -142,7 +142,12 @@ repo's own runs need (`gametestMods`); content gated on any other pack mod is
   scan finds no such mod), so that draft branch was re-expressed as the paths
   that do exist. FTB's built-in advancement and stat tasks are authored through
   their own `readData` keys (`advancement`/`criterion`, `stat`/`value`), the
-  same route the native fieldless types take.
+  same route the native fieldless types take. **Kills read FTB's own kill
+  task** (`entity`/`value` keys); the pack's `Quest-Kill-Task` (mod id
+  `questkilltask`) ships no task class of its own - it *enhances* FTB's kill
+  attribution - so a kill chapter gates on it alongside its entity mod. Ice and
+  Fire ships **no unified dragon tag**, so a "kill each type" quest carries one
+  kill task per dragon rather than one tag task.
 - **Crossover bridges are narrative interlocks, not hard quest links.** A
   counterpart chapter often does not exist when one side ships, and FTB drops
   a dependency on a missing quest on load - a silent no-op that gates
