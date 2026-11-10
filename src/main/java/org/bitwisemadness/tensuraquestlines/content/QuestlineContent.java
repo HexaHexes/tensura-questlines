@@ -32,7 +32,8 @@ public final class QuestlineContent {
         DepthsContent.raiders(),
         DepthsContent.guardians(),
         TrialsContent.spellcraft(),
-        TrialsContent.wyrmhunter()
+        TrialsContent.wyrmhunter(),
+        TrialsContent.enchanter()
     );
 
     private QuestlineContent() {
