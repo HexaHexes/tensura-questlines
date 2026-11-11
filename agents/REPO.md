@@ -160,7 +160,11 @@ repo's own runs need (`gametestMods`); content gated on any other pack mod is
   a dependency on a missing quest on load - a silent no-op that gates
   nothing. Each side carries matching text (the registry lives in the majors'
   issues #29-#33) and the hard link is added only once both quests exist. The
-  Depths' Deep Claim names the Trials' Final Gate's "Proven" beat this way.
+  Depths' Deep Claim and the Trials' Final Gate's "Proven" beat now name each
+  other this way (both sides live); the hard link stays a follow-up.
+- The Trials finale is a **composition of already-audited observables**, never
+  a new reader: The Final Gate requires the Gateways' pinnacle and sigil plus
+  each other sub-line's capstone, and gates on the union of their mods.
 - Slot unlocks work the way T:SJ reads them: `effectiveSlotLimit(player)` is
   the player's override when one is set, and `MAX_JOBS_GLOBAL` (the pack's
   default, 3) otherwise. Our unlock reward raises the override through SJ's

@@ -30,12 +30,15 @@ public final class TrialsContent {
     private static final int ENCHANTERS_LADDER_CHAPTER = 20;
     private static final int GATEWAYS_CHAPTER = 21;
     private static final int ORDEALS_CHAPTER = 22;
+    private static final int FINAL_GATE_CHAPTER = 23;
     private static final List<String> SPELLCRAFT_MODS = List.of("irons_spellbooks", "mysticism");
     private static final List<String> WYRMHUNTER_MODS = List.of("iceandfire", "questkilltask");
     private static final List<String> ENCHANTER_MODS = List.of("apothic_enchanting", "apotheosis");
     private static final List<String> GATEWAYS_MODS = List.of("gateways", "apotheosis");
     private static final List<String> ORDEALS_MODS =
         List.of("hellish_trials", "illagerinvasion", "relics");
+    private static final List<String> FINAL_GATE_MODS =
+        List.of("apotheosis", "gateways", "irons_spellbooks", "apothic_enchanting", "iceandfire");
     private static final ResourceLocation SPELL_BOOK_EQUIP =
         ResourceLocation.parse("irons_spellbooks:irons_spellbooks/spell_book_equip");
     private static final ResourceLocation SPELL_BOOK_IRON =
@@ -76,6 +79,8 @@ public final class TrialsContent {
     private static final ResourceLocation RELIC_BELT = ResourceLocation.parse("relics:kinetic_belt");
     private static final ResourceLocation RELIC_BOOT = ResourceLocation.parse("relics:springy_boot");
     private static final ResourceLocation RELIC_MANTLE = ResourceLocation.parse("relics:midnight_mantle");
+    private static final ResourceLocation DRAGON_SLAYER =
+        ResourceLocation.parse("iceandfire:iceandfire/kill_if_dragon");
 
     private TrialsContent() {
     }
@@ -354,6 +359,50 @@ public final class TrialsContent {
                         TaskSpec.item(ChapterIds.task(chapter, 3, 1), RELIC_BOOT, 1),
                         TaskSpec.item(ChapterIds.task(chapter, 3, 2), RELIC_MANTLE, 1)),
                     List.of(RewardSpec.item(ChapterIds.reward(chapter, 3, 0), Items.DIAMOND, 4)))
+            ));
+    }
+
+    /**
+     * Sub-questline 6, The Final Gate (HexaHexes/tensura-questlines#25): the
+     * finale that closes the whole questline web.
+     *
+     * <p><b>Criteria audit</b> (the sub-issue's acceptance box): the capstone is
+     * a <em>composition of already-audited observables</em>, never a new one -
+     * the Gateways' top tier and relic ({@code apotheosis:gateways/pinnacle},
+     * {@code sigil_of_supremacy}) plus each other sub-line's capstone
+     * ({@code ink_legendary} from Spellcraft, {@code apothic_enchanting:100ench}
+     * from the Enchanter's Ladder, {@code iceandfire:kill_if_dragon} from
+     * Wyrmhunter). The chapter gates on the union of those mods.</p>
+     *
+     * <p><b>The 5-to-4 interlock</b> (a mutual acceptance box with
+     * HexaHexes/tensura-questlines#16): {@code Proven} is the other half of the
+     * Deep Claim interlock - the Depths' Deep Claim says it is "Reserved for the
+     * Proven - the Final Gate's champion", and this side names the Deep Claim
+     * back. It is carried as matching text/criteria, not a hard quest link: FTB
+     * drops a dependency on a missing quest, so a link before both sides exist
+     * would gate nothing. The hard link is a follow-up once both are live.</p>
+     *
+     * @return the Final Gate chapter spec
+     */
+    public static AuthoredChapter finalGate() {
+        int chapter = FINAL_GATE_CHAPTER;
+        return AuthoredChapter.requiring(FINAL_GATE_MODS, ChapterIds.chapter(chapter),
+            "The Final Gate", List.of(
+                new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                    "The Final Gate",
+                    "Every trial at once: the pinnacle gate, the sigil, legendary ink, level-100 enchanting, and a dragon dead. Nothing less opens it.",
+                    List.of(
+                        TaskSpec.advancement(ChapterIds.task(chapter, 0, 0), GATE_PINNACLE),
+                        TaskSpec.advancement(ChapterIds.task(chapter, 0, 1), SIGIL_OF_SUPREMACY),
+                        TaskSpec.advancement(ChapterIds.task(chapter, 0, 2), INK_LEGENDARY),
+                        TaskSpec.advancement(ChapterIds.task(chapter, 0, 3), ENCH_ENCHANT_100),
+                        TaskSpec.advancement(ChapterIds.task(chapter, 0, 4), DRAGON_SLAYER)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.DIAMOND, 8))),
+                new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                    "Proven",
+                    "The gate is open and the web is closed. The Depths' Deep Claim opens to the Proven - the Final Gate's champion.",
+                    List.of(TaskSpec.checkmark(ChapterIds.task(chapter, 1, 0))),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.DIAMOND, 5)))
             ));
     }
 }

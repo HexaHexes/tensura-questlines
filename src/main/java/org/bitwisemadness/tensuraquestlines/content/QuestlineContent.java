@@ -35,7 +35,8 @@ public final class QuestlineContent {
         TrialsContent.wyrmhunter(),
         TrialsContent.enchanter(),
         TrialsContent.gateways(),
-        TrialsContent.ordeals()
+        TrialsContent.ordeals(),
+        TrialsContent.finalGate()
     );
 
     private QuestlineContent() {
