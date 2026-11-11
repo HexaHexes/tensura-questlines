@@ -28,9 +28,11 @@ public final class TrialsContent {
     private static final int SPELLCRAFT_CHAPTER = 18;
     private static final int WYRMHUNTER_CHAPTER = 19;
     private static final int ENCHANTERS_LADDER_CHAPTER = 20;
+    private static final int GATEWAYS_CHAPTER = 21;
     private static final List<String> SPELLCRAFT_MODS = List.of("irons_spellbooks", "mysticism");
     private static final List<String> WYRMHUNTER_MODS = List.of("iceandfire", "questkilltask");
     private static final List<String> ENCHANTER_MODS = List.of("apothic_enchanting", "apotheosis");
+    private static final List<String> GATEWAYS_MODS = List.of("gateways", "apotheosis");
     private static final ResourceLocation SPELL_BOOK_EQUIP =
         ResourceLocation.parse("irons_spellbooks:irons_spellbooks/spell_book_equip");
     private static final ResourceLocation SPELL_BOOK_IRON =
@@ -54,6 +56,14 @@ public final class TrialsContent {
     private static final ResourceLocation AFFIX_HAVEN = ResourceLocation.parse("apotheosis:progression/haven");
     private static final ResourceLocation ENCH_ENCHANT_60 = ResourceLocation.parse("apothic_enchanting:60ench");
     private static final ResourceLocation ENCH_ENCHANT_100 = ResourceLocation.parse("apothic_enchanting:100ench");
+    private static final ResourceLocation GATE_FRONTIER =
+        ResourceLocation.parse("apotheosis:gateways/frontier");
+    private static final ResourceLocation GATE_ASCENT = ResourceLocation.parse("apotheosis:gateways/ascent");
+    private static final ResourceLocation GATE_SUMMIT = ResourceLocation.parse("apotheosis:gateways/summit");
+    private static final ResourceLocation GATE_PINNACLE =
+        ResourceLocation.parse("apotheosis:gateways/pinnacle");
+    private static final ResourceLocation SIGIL_OF_SUPREMACY =
+        ResourceLocation.parse("apotheosis:gateways/sigil_of_supremacy");
 
     private TrialsContent() {
     }
@@ -222,6 +232,61 @@ public final class TrialsContent {
                     "Level 100. Commerce funds the shelves; the ladder is yours alone.",
                     List.of(TaskSpec.advancement(ChapterIds.task(chapter, 3, 0), ENCH_ENCHANT_100)),
                     List.of(RewardSpec.item(ChapterIds.reward(chapter, 3, 0), Items.DIAMOND, 4)))
+            ));
+    }
+
+    /**
+     * Sub-questline 4, The Gateways (HexaHexes/tensura-questlines#23): the wave
+     * ladder that is the line's spine of escalating boss fights.
+     *
+     * <p><b>Observable-signal audit</b> (the sub-issue's acceptance box):</p>
+     *
+     * <ul>
+     *   <li>Apotheosis ships one advancement per gateway tier, each keyed to a
+     *       real {@code gateways:finish_gateway} trigger with a condition on the
+     *       gateway id: {@code apotheosis:gateways/frontier},
+     *       {@code ascent}, {@code summit} and {@code pinnacle} complete
+     *       {@code apotheosis:tiered/&lt;tier&gt;}.</li>
+     *   <li>The tier list is <b>pack data, read from the live registry</b>:
+     *       Apotheosis defines {@code data/apotheosis/gateways/tiered/{frontier,
+     *       ascent,summit,pinnacle}.json}, and every advancement is guarded by a
+     *       {@code neoforge:mod_loaded} condition on {@code gateways}. The
+     *       chapter gates on both mods.</li>
+     *   <li>The capstone reads {@code apotheosis:gateways/sigil_of_supremacy}
+     *       (obtain {@code apotheosis:sigil_of_supremacy}).</li>
+     * </ul>
+     *
+     * @return the Gateways chapter spec
+     */
+    public static AuthoredChapter gateways() {
+        int chapter = GATEWAYS_CHAPTER;
+        return AuthoredChapter.requiring(GATEWAYS_MODS, ChapterIds.chapter(chapter),
+            "The Gateways", List.of(
+                new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                    "Open the Way",
+                    "Summon and finish a frontier gate. The skills above are the price of admission; the wave is the rest.",
+                    List.of(TaskSpec.advancement(ChapterIds.task(chapter, 0, 0), GATE_FRONTIER)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.DIAMOND, 1))),
+                new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                    "Wave Breaker",
+                    "The ascent gate. More waves, harder things, better rewards.",
+                    List.of(TaskSpec.advancement(ChapterIds.task(chapter, 1, 0), GATE_ASCENT)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.DIAMOND, 2))),
+                new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                    "The Summit",
+                    "Summit tier cleared. The air thins; the mobs do not.",
+                    List.of(TaskSpec.advancement(ChapterIds.task(chapter, 2, 0), GATE_SUMMIT)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.DIAMOND, 3))),
+                new QuestSpec(ChapterIds.quest(chapter, 3), 4.5D, 0.0D,
+                    "The Hunt's Pinnacle",
+                    "The pinnacle gate falls. This is the depth the guardians below have been warning you about.",
+                    List.of(TaskSpec.advancement(ChapterIds.task(chapter, 3, 0), GATE_PINNACLE)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 3, 0), Items.DIAMOND, 4))),
+                new QuestSpec(ChapterIds.quest(chapter, 4), 6.0D, 0.0D,
+                    "Sigil of Supremacy",
+                    "Carry the sigil a pinnacle gate yields. Commerce bought the gear; the ladder is finished.",
+                    List.of(TaskSpec.advancement(ChapterIds.task(chapter, 4, 0), SIGIL_OF_SUPREMACY)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 4, 0), Items.DIAMOND, 5)))
             ));
     }
 }
