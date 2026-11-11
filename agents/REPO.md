@@ -147,7 +147,14 @@ repo's own runs need (`gametestMods`); content gated on any other pack mod is
   `questkilltask`) ships no task class of its own - it *enhances* FTB's kill
   attribution - so a kill chapter gates on it alongside its entity mod. Ice and
   Fire ships **no unified dragon tag**, so a "kill each type" quest carries one
-  kill task per dragon rather than one tag task.
+  kill task per dragon rather than one tag task. Structure tasks are likewise
+  FTB built-ins, authored through their `structure` `readData` key.
+- Ordeals audit: **HellishTrials is structure-only** (no advancements, no items),
+  so its beat is a structure task on `hellish_trials:nether_trial`;
+  **IllagerInvasion ships only recipe advancements**, so its beat is a kill;
+  **`relics` ships no advancement or custom stat**, only a `relics:relic` item
+  tag (20 members) - and FTB's item task is stack-based (no tag support), so
+  specific tag members are named with the tag cited as authority.
 - **Crossover bridges are narrative interlocks, not hard quest links.** A
   counterpart chapter often does not exist when one side ships, and FTB drops
   a dependency on a missing quest on load - a silent no-op that gates

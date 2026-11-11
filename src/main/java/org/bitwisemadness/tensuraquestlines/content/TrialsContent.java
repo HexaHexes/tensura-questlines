@@ -29,10 +29,13 @@ public final class TrialsContent {
     private static final int WYRMHUNTER_CHAPTER = 19;
     private static final int ENCHANTERS_LADDER_CHAPTER = 20;
     private static final int GATEWAYS_CHAPTER = 21;
+    private static final int ORDEALS_CHAPTER = 22;
     private static final List<String> SPELLCRAFT_MODS = List.of("irons_spellbooks", "mysticism");
     private static final List<String> WYRMHUNTER_MODS = List.of("iceandfire", "questkilltask");
     private static final List<String> ENCHANTER_MODS = List.of("apothic_enchanting", "apotheosis");
     private static final List<String> GATEWAYS_MODS = List.of("gateways", "apotheosis");
+    private static final List<String> ORDEALS_MODS =
+        List.of("hellish_trials", "illagerinvasion", "relics");
     private static final ResourceLocation SPELL_BOOK_EQUIP =
         ResourceLocation.parse("irons_spellbooks:irons_spellbooks/spell_book_equip");
     private static final ResourceLocation SPELL_BOOK_IRON =
@@ -64,6 +67,15 @@ public final class TrialsContent {
         ResourceLocation.parse("apotheosis:gateways/pinnacle");
     private static final ResourceLocation SIGIL_OF_SUPREMACY =
         ResourceLocation.parse("apotheosis:gateways/sigil_of_supremacy");
+    private static final ResourceLocation NETHER_TRIAL =
+        ResourceLocation.parse("hellish_trials:nether_trial");
+    private static final ResourceLocation INVADER_NECROMANCER =
+        ResourceLocation.parse("illagerinvasion:necromancer");
+    private static final ResourceLocation RELIC_NECKLACE =
+        ResourceLocation.parse("relics:reflective_necklace");
+    private static final ResourceLocation RELIC_BELT = ResourceLocation.parse("relics:kinetic_belt");
+    private static final ResourceLocation RELIC_BOOT = ResourceLocation.parse("relics:springy_boot");
+    private static final ResourceLocation RELIC_MANTLE = ResourceLocation.parse("relics:midnight_mantle");
 
     private TrialsContent() {
     }
@@ -287,6 +299,61 @@ public final class TrialsContent {
                     "Carry the sigil a pinnacle gate yields. Commerce bought the gear; the ladder is finished.",
                     List.of(TaskSpec.advancement(ChapterIds.task(chapter, 4, 0), SIGIL_OF_SUPREMACY)),
                     List.of(RewardSpec.item(ChapterIds.reward(chapter, 4, 0), Items.DIAMOND, 5)))
+            ));
+    }
+
+    /**
+     * Sub-questline 5, Ordeals (HexaHexes/tensura-questlines#24): HellishTrials,
+     * IllagerInvasion and relic hunts.
+     *
+     * <p><b>Observable-signal audit</b> (the sub-issue's acceptance box, and
+     * its "re-express when no signal exists" rule):</p>
+     *
+     * <ul>
+     *   <li><b>HellishTrials ships no advancements and no items</b> - it is a
+     *       structure mod. Its trial is the {@code hellish_trials:nether_trial}
+     *       structure ({@code data/hellish_trials/worldgen/structure/}), so the
+     *       beat is a built-in <b>structure</b> task on that id.</li>
+     *   <li><b>IllagerInvasion ships only recipe advancements</b> (no gameplay
+     *       ones), but it registers its own invaders - the beat is a kill task
+     *       on {@code illagerinvasion:necromancer} (live lang confirms the
+     *       entity).</li>
+     *   <li><b>relics ships no advancements and no custom stat</b>, so the relic
+     *       beats are item tasks. The mod does carry a {@code relics:relic}
+     *       item tag (20 members), but FTB's item task is stack-based and cannot
+     *       read a tag, so specific tag members are named and the tag is cited
+     *       as the authority.</li>
+     * </ul>
+     *
+     * @return the Ordeals chapter spec
+     */
+    public static AuthoredChapter ordeals() {
+        int chapter = ORDEALS_CHAPTER;
+        return AuthoredChapter.requiring(ORDEALS_MODS, ChapterIds.chapter(chapter),
+            "Ordeals", List.of(
+                new QuestSpec(ChapterIds.quest(chapter, 0), 0.0D, 0.0D,
+                    "The Trial Fires",
+                    "Walk into a nether trial. HellishTrials leaves no advancement behind, but the structure knows you are there.",
+                    List.of(TaskSpec.structure(ChapterIds.task(chapter, 0, 0), NETHER_TRIAL)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 0, 0), Items.EMERALD, 12))),
+                new QuestSpec(ChapterIds.quest(chapter, 1), 1.5D, 0.0D,
+                    "The Invasion",
+                    "Put an invader down. IllagerInvasion only ships recipe advancements, so the kill is the record.",
+                    List.of(TaskSpec.kill(ChapterIds.task(chapter, 1, 0), INVADER_NECROMANCER, 1)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 1, 0), Items.DIAMOND, 1))),
+                new QuestSpec(ChapterIds.quest(chapter, 2), 3.0D, 0.0D,
+                    "Relic Hunter",
+                    "Carry out your first relic. The mod ships no advancement, so the relic itself is the proof.",
+                    List.of(TaskSpec.item(ChapterIds.task(chapter, 2, 0), RELIC_NECKLACE, 1)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 2, 0), Items.DIAMOND, 2))),
+                new QuestSpec(ChapterIds.quest(chapter, 3), 4.5D, 0.0D,
+                    "Curator",
+                    "Three more relics, three more stories. The collection is the ordeal's real reward.",
+                    List.of(
+                        TaskSpec.item(ChapterIds.task(chapter, 3, 0), RELIC_BELT, 1),
+                        TaskSpec.item(ChapterIds.task(chapter, 3, 1), RELIC_BOOT, 1),
+                        TaskSpec.item(ChapterIds.task(chapter, 3, 2), RELIC_MANTLE, 1)),
+                    List.of(RewardSpec.item(ChapterIds.reward(chapter, 3, 0), Items.DIAMOND, 4)))
             ));
     }
 }

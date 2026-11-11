@@ -34,7 +34,8 @@ public final class QuestlineContent {
         TrialsContent.spellcraft(),
         TrialsContent.wyrmhunter(),
         TrialsContent.enchanter(),
-        TrialsContent.gateways()
+        TrialsContent.gateways(),
+        TrialsContent.ordeals()
     );
 
     private QuestlineContent() {
