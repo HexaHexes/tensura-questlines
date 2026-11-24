@@ -6,8 +6,8 @@ and pulled in verbatim — **never hand-edit it.** Everything in this file is th
 repo's own and is edited freely; keep it aligned with the org rules rather than
 restating them.
 
-**Repo:** `HexaHexes/tensura-questlines` • **Mod ID:** `tensura_questlines` • **Branch:** `main`
-**Platform:** Minecraft 1.21.1 / NeoForge 21.1.259 / JDK 21 • **Jar:** `build/libs/tensura_questlines-<version>.jar`
+**Repo:** `HexaHexes/tensura-questlines` · **Mod ID:** `tensura_questlines` · **Branch:** `neoforge-1.21.1` (the loader line; this is the default branch - no `main`)
+**Platform:** Minecraft 1.21.1 / NeoForge 21.1.259 / JDK 21 · **Jar:** `build/libs/tensura_questlines-neoforge-1.21.1-<version>.jar`
 
 The pack's authored questline content: five major lines - Reincarnation,
 Professions, Commerce, Infinite Depths, Trials of Power - plus their
